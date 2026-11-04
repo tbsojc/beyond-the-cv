@@ -1,31 +1,28 @@
 {
   "slug": "qrailing-product-marketing",
-  "published": true,
   "company": "Q-railing Europe GmbH & Co. KG",
-  "contact": "Florian Jansen",
   "role": "Product Marketing Specialist",
+  "contact": "Florian Jansen",
   "greeting": "Hallo Florian,",
   "personalNote": "Ich kenne Q-railing, die Produkte und die Zusammenarbeit mit unseren internationalen Märkten aus meiner täglichen Arbeit. Für mich ist Product Marketing deshalb kein Neuanfang, sondern der nächste logische Schritt: näher an die Produktstrategie, an Markteinführungen und an die Frage, wie wir technische Stärken für Kunden und Vertrieb überzeugend übersetzen.",
   "motivation": "Im Digital Sales habe ich erlebt, wie stark gute Produktinformationen über die Kundenerfahrung entscheiden. Besonders beim 3D-Produktkonfigurator kamen Produktverständnis, Technik und Vermarktung zusammen. Diese Erfahrung möchte ich im Product Marketing einbringen – von der klaren Positionierung über verständliche Materialien bis zur internationalen Umsetzung.",
   "letter": "Hallo Florian,\n\nQ-railing kenne ich aus meiner täglichen Arbeit – die Produkte, die internationalen Märkte und die Schnittstellen zwischen Vertrieb, Marketing und Technik. Genau deshalb interessiert mich die Position als Product Marketing Specialist. Ich möchte meine Erfahrung aus dem Digital Sales gezielt dort einsetzen, wo Produktwissen in klare Botschaften, überzeugende Markteinführungen und wirksame Unterstützung für den Vertrieb übersetzt wird.\n\nEin gutes Beispiel dafür ist meine Arbeit an einem B2B2C-3D-Produktkonfigurator mit Anbindung an ERP und Fertigung. Dabei ging es nicht nur um die technische Umsetzung, sondern auch darum, komplexe Produktvarianten für Kunden verständlich und digital erlebbar zu machen. Diese Verbindung aus Produktverständnis, Kundensicht und bereichsübergreifender Zusammenarbeit möchte ich stärker in die Produktkommunikation einbringen.\n\nHinzu kommt meine Erfahrung in der Koordination digitaler Marketing- und Vertriebsaktivitäten für 13 Tochtergesellschaften und drei exklusive Vertriebspartner. Ich weiß, wie wichtig es ist, zentrale Botschaften konsistent zu halten und gleichzeitig die Anforderungen der einzelnen Märkte zu berücksichtigen. Meine früheren Marketingrollen bei Alpha Sports und Dyaco ergänzen diese Perspektive um Markenarbeit, Kampagnen und zielgruppengerechte Kommunikation.\n\nMich reizt an der Position besonders, Produkte und ihre Vorteile noch stärker in den Mittelpunkt meiner Arbeit zu stellen: Markteinführungen begleiten, Inhalte und Materialien entwickeln und die Sales-Teams mit verständlicher, praxisnaher Kommunikation unterstützen. Dabei kann ich auf meine Kenntnis des Unternehmens aufbauen und zugleich eine neue fachliche Perspektive einbringen.\n\nIch freue mich darauf, mit dir zu besprechen, welche Schwerpunkte ihr im Product Marketing setzt und wie ich das Team unterstützen kann.\n\nViele Grüße\nBenedict",
+  "published": true,
   "jobFit": [
     {
       "requirement": "Komplexe Produkte verständlich vermitteln",
       "evidence": "Am B2B2C-3D-Produktkonfigurator mit ERP- und Fertigungsanbindung mitgewirkt: technische Produktvarianten für Kunden digital verständlich und erlebbar gemacht.",
-      "world": 1,
-      "link": ""
+      "world": 1
     },
     {
       "requirement": "Internationale Vermarktung koordinieren",
       "evidence": "Digitale Marketing- und Vertriebsaktivitäten für 13 Tochtergesellschaften und drei exklusive Vertriebspartner koordiniert – mit Blick auf konsistente Botschaften und lokale Anforderungen.",
-      "world": 2,
-      "link": ""
+      "world": 2
     },
     {
       "requirement": "Marketing, Vertrieb und Technik verbinden",
       "evidence": "Erfahrung an bereichsübergreifenden Schnittstellen bei Q-railing sowie in Marken- und Marketingrollen bei Alpha Sports und Dyaco.",
-      "world": 3,
-      "link": ""
+      "world": 3
     }
   ]
 }
