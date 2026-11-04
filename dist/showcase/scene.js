@@ -490,3 +490,13 @@ function animate(t) {
 }
 
 requestAnimationFrame(animate);
+
+
+// Signal to the Content Studio that the scene is ready.
+if (window.parent !== window) {
+  window.parent.postMessage(
+    { type: 'beyond-showcase-ready' },
+    window.location.origin
+  );
+}
+
