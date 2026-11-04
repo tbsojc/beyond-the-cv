@@ -1,3 +1,4 @@
+
 [build]
   publish = "dist"
 
@@ -6,7 +7,7 @@
   [headers.values]
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer"
-    X-Frame-Options = "DENY"
+    X-Frame-Options = "SAMEORIGIN"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
 [[headers]]
@@ -14,3 +15,13 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow, noarchive"
     Referrer-Policy = "no-referrer"
+
+[[headers]]
+  for = "/studio/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+
+[[headers]]
+  for = "/showcase/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
