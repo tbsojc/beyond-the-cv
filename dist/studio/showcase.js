@@ -1,13 +1,81 @@
+
 'use strict';
-// Preview only: sends the current unsaved form data to the isolated preview frame.
-const showcaseFrame=document.getElementById('showcaseFrame');
-function showcasePreview(){
- const data=caseRead();
- if(!data.title)data.title='Unbenannte Case Study';
- document.getElementById('showcaseStatus').textContent='Lokale Vorschau – nicht veröffentlicht. Änderungen zuerst in der Case-Study-Bibliothek speichern.';
- showcaseFrame.contentWindow?.postMessage({type:'beyond-showcase-preview',data},location.origin);
-}
-document.getElementById('showcaseRefresh').addEventListener('click',showcasePreview);
-showcaseFrame.addEventListener('load',showcasePreview);
-document.getElementById('caseSelect').addEventListener('change',()=>setTimeout(showcasePreview,0));
-document.getElementById('caseModule').addEventListener('change',showcasePreview);
+
+(() => {
+  const frame = document.getElementById('showcaseFrame');
+  const button = document.getElementById('showcaseRefresh');
+  const status = document.getElementById('showcaseStatus');
+
+  if (!frame || !button || !status) return;
+
+  let ready = false;
+  let pendingData = null;
+
+  function getData() {
+    if (typeof caseRead !== 'function') {
+      throw new Error('Case-Study-Formular nicht verfügbar.');
+    }
+
+    const data = caseRead();
+    if (!data.title) data.title = 'Unbenannte Case Study';
+    return data;
+  }
+
+  function sendData() {
+    if (!ready || !pendingData || !frame.contentWindow) {
+      return;
+    }
+
+    frame.contentWindow.postMessage({
+      type: 'beyond-showcase-preview',
+      data: pendingData
+    }, window.location.origin);
+
+    status.textContent =
+      'Case-Study-Daten an die 3D-Vorschau übertragen.';
+  }
+
+  function refresh() {
+    try {
+      pendingData = getData();
+
+      if (!ready) {
+        status.textContent =
+          'Warte auf die 3D-Vorschau …';
+      } else {
+        sendData();
+      }
+    } catch (error) {
+      status.textContent = 'Fehler: ' + error.message;
+    }
+  }
+
+  window.addEventListener('message', event => {
+    if (
+      event.origin !== window.location.origin ||
+      event.source !== frame.contentWindow
+    ) return;
+
+    if (event.data?.type === 'beyond-showcase-ready') {
+      ready = true;
+      sendData();
+    }
+  });
+
+  frame.addEventListener('load', () => {
+    ready = false;
+    refresh();
+  });
+
+  button.addEventListener('click', refresh);
+
+  document.getElementById('caseSelect')
+    ?.addEventListener('change', () => {
+      setTimeout(refresh, 0);
+    });
+
+  document.getElementById('caseModule')
+    ?.addEventListener('change', refresh);
+
+  refresh();
+})();
