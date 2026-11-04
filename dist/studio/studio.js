@@ -27,7 +27,7 @@ $('connect').addEventListener('click',async()=>{const btn=$('connect');btn.disab
  const a={owner:$('owner').value.trim(),repo:$('repo').value.trim(),branch:$('branch').value.trim()||'main',token:$('token').value.trim()};if(!a.owner||!a.repo||!a.token)throw Error('Bitte Repository und Token eingeben.');auth=a;
  const list=await api('contents/applications?ref='+encodeURIComponent(auth.branch));files={};for(const item of list.filter(x=>x.name.endsWith('.json')&&x.name!=='VORLAGE.json')){
  const result=await api('contents/'+encodeURIComponent(item.path).replace(/%2F/g,'/')+'?ref='+encodeURIComponent(auth.branch));const data=JSON.parse(decode(result.content));files[data.slug]={sha:result.sha,data};}
- selected=Object.keys(files).sort()[0]||null;isNew=!selected;refreshList();if(selected)fill(files[selected].data);else $('new').click();$('workspace').hidden=false;await loadSite();$('connectionStatus').textContent='Verbunden · '+Object.keys(files).length+' Bewerbung(en)';$('token').value='';
+ selected=Object.keys(files).sort()[0]||null;isNew=!selected;refreshList();if(selected)fill(files[selected].data);else $('new').click();$('workspace').hidden=false;const siteLoaded=await loadSite();$('connectionStatus').textContent='Verbunden · '+Object.keys(files).length+' Bewerbung(en)'+(siteLoaded?' · CV-Editor geladen':' · CV-Editor konnte nicht geladen werden (siehe Fehlermeldung)');$('token').value='';
  }catch(err){$('connectionStatus').textContent='Fehler: '+err.message;auth=null}finally{btn.disabled=false}});
 $('preview').addEventListener('click',()=>{const d=read();if(!cleanSlug(d.slug)){alert('Bitte ein gültiges URL-Kürzel eingeben.');return}const w=window.open('','_blank');if(!w){alert('Pop-up blockiert.');return}const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));w.document.write('<!doctype html><html lang="de"><meta charset="utf-8"><title>Inhaltsvorschau</title><style>body{font:17px/1.7 system-ui;background:#06111e;color:#e9f6ff;max-width:760px;margin:40px auto;padding:20px}h1{color:#80dfff}section{border-top:1px solid #47677c;margin-top:26px;padding-top:18px}p{white-space:pre-wrap}</style><h1>'+esc(d.company)+'</h1><h2>'+esc(d.role)+'</h2><p>'+esc(d.greeting)+'</p><section><h2>Persönliche Ansprache</h2><p>'+esc(d.personalNote)+'</p></section><section><h2>Motivation</h2><p>'+esc(d.motivation)+'</p></section><section><h2>Anschreiben</h2><p>'+esc(d.letter)+'</p></section><section><h2>Job Fit</h2>'+d.jobFit.map(f=>'<h3>'+esc(f.requirement)+'</h3><p>'+esc(f.evidence)+'</p>').join('')+'</section>');w.document.close()});
 $('save').addEventListener('click',async()=>{const d=read();if(!auth){alert('Zuerst GitHub verbinden.');return}if(!cleanSlug(d.slug)){alert('URL-Kürzel: nur Kleinbuchstaben, Zahlen und Bindestriche.');return}if(!isNew&&selected!==d.slug){alert('Bestehende URL-Kürzel dürfen nicht geändert werden.');return}if(isNew&&files[d.slug]){alert('Dieses URL-Kürzel ist bereits vergeben.');return}for(const field of ['company','role','greeting','personalNote','motivation','letter'])if(!d[field]){alert('Bitte ausfüllen: '+field);return}if(d.jobFit.some(f=>!f.requirement||!f.evidence)){alert('Bitte alle drei Job-Fit-Karten ausfüllen.');return}
@@ -39,11 +39,19 @@ $('save').addEventListener('click',async()=>{const d=read();if(!auth){alert('Zue
 const siteLabels={site:'Profil & Kennzahlen',name:'Name',headline:'Headline',tagline:'Beruflicher Fokus',intro:'Einleitung',metrics:'Kennzahlen',value:'Wert',label:'Beschriftung',skills:'Kompetenzkarten',title:'Titel',subtitle:'Untertitel',icon:'Icon-ID',career:'Career Journey',company:'Unternehmen',period:'Zeitraum',description:'Beschreibung',education:'Ausbildung',degree:'Abschluss',school:'Hochschule',grade:'Note',languages:'Sprachen',language:'Sprache',level:'Niveau',volunteering:'Engagement',focusTools:'Tech-Stack',worlds:'Kompetenzwelten',eyebrow:'Bereichslabel',statement:'Kernaussage',facts:'Fakten',chapters:'Kapitel',heading:'Überschrift',body:'Beschreibung',tags:'Schlagwörter'};
 const friendly=k=>siteLabels[k]||k;
 async function loadSite(){
- try{const result=await api('contents/content/site.json?ref='+encodeURIComponent(auth.branch));siteData=JSON.parse(decode(result.content));siteSha=result.sha;$('siteWorkspace').hidden=false;renderSite();}
- catch(e){$('siteWorkspace').hidden=true;$('connectionStatus').textContent='Bewerbungen geladen, CV-Daten fehlen: '+e.message;}
+ try{
+  const result=await api('contents/content/site.json?ref='+encodeURIComponent(auth.branch));
+  siteSha=result.sha;
+  // GitHub Contents API omits Base64 content for files > 1 MB. Fetch the Git blob by SHA instead.
+  let encoded=result.content;
+  if(!encoded){const blob=await api('git/blobs/'+encodeURIComponent(siteSha));encoded=blob.content;}
+  if(!encoded)throw Error('GitHub hat keinen Dateiinhalt geliefert.');
+  siteData=JSON.parse(decode(encoded));
+  $('siteWorkspace').hidden=false;renderSite();$('siteStatus').textContent='CV-Inhalte erfolgreich geladen.';return true;
+ }catch(e){$('siteWorkspace').hidden=true;$('siteStatus').textContent='';$('connectionStatus').textContent='CV-Editor konnte nicht geladen werden: '+e.message;return false;}
 }
-function section(){const k=$('siteSection').value;return k==='site'?siteData.site:siteData.site[k]}
-function sitePath(){const k=$('siteSection').value;return k==='site'?['site']:['site',k]}
+function section(){const k=$('siteSection').value;return k==='site'?siteData.site:k==='worldDetails'?siteData.worlds:siteData.site[k]}
+function sitePath(){const k=$('siteSection').value;return k==='site'?['site']:k==='worldDetails'?['worlds']:['site',k]}
 function atPath(path){return path.reduce((v,k)=>v[k],siteData)}
 function renderSite(){if(!siteData)return;const root=$('siteFields');root.replaceChildren();const k=$('siteSection').value;root.append(renderField(section(),sitePath(),k));}
 function element(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
