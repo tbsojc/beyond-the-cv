@@ -1,0 +1,27 @@
+{
+  "slug": "beispiel-unternehmen-position",
+  "company": "[Unternehmen]",
+  "role": "[Position]",
+  "contact": "",
+  "greeting": "Guten Tag,",
+  "personalNote": "[Persönlicher Einstieg]",
+  "motivation": "[Motivation]",
+  "letter": "[Motivationsschreiben]",
+  "jobFit": [
+    {
+      "requirement": "[Anforderung]",
+      "evidence": "[Beleg aus dem CV]",
+      "world": 0
+    },
+    {
+      "requirement": "[Anforderung]",
+      "evidence": "[Beleg aus dem CV]",
+      "world": 1
+    },
+    {
+      "requirement": "[Anforderung]",
+      "evidence": "[Beleg aus dem CV]",
+      "world": 2
+    }
+  ]
+}

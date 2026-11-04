@@ -1,0 +1,33 @@
+
+/* Version 8.4 – Technologie-Matrix */
+#tech-matrix-launch{white-space:nowrap}
+#tech-matrix[hidden]{display:none!important}
+#tech-matrix{position:fixed;inset:0;z-index:12000;background:rgba(2,9,20,.92);backdrop-filter:blur(22px);overflow:auto;color:#edf7ff;font-family:inherit;padding:clamp(16px,4vw,48px)}
+#tech-matrix .tm-shell{max-width:1100px;margin:0 auto 50px}
+#tech-matrix .tm-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+#tech-matrix h2{font-size:clamp(30px,5vw,62px);line-height:1.05;margin:10px 0 12px;letter-spacing:-.04em}
+#tech-matrix p{color:#adc4d6;max-width:780px;line-height:1.6}
+#tech-matrix .tm-kicker{font-size:11px;letter-spacing:.19em;color:#80dfff;text-transform:uppercase}
+#tech-matrix button,#tech-matrix select,#tech-matrix input{font:inherit}
+#tech-matrix button{cursor:pointer}
+#tech-matrix .tm-close{border:1px solid #42617a;background:#11293d;color:#eaf7ff;border-radius:12px;padding:11px 15px}
+#tech-matrix .tm-controls{display:flex;gap:10px;flex-wrap:wrap;margin:25px 0}
+#tech-matrix .tm-controls input,#tech-matrix .tm-controls select,#tech-matrix .tm-entry select,#tech-matrix .tm-entry input{background:#10273b;border:1px solid #36546a;color:#f2faff;border-radius:10px;padding:10px 12px;min-width:0}
+#tech-matrix .tm-controls input{flex:1 1 240px}
+#tech-matrix .tm-controls select{flex:1 1 175px}
+#tech-matrix .tm-stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+#tech-matrix .tm-stat{border:1px solid #294a63;background:#102437;border-radius:13px;padding:12px 16px;font-size:13px;color:#c3d8e7}
+#tech-matrix .tm-stat strong{font-size:21px;color:#83e4ff;margin-right:7px}
+#tech-matrix .tm-group{margin:22px 0 30px}
+#tech-matrix .tm-group h3{font-size:17px;letter-spacing:.01em;margin-bottom:12px}
+#tech-matrix .tm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:12px}
+#tech-matrix .tm-entry{background:linear-gradient(145deg,#142e43,#0b1e2e);border:1px solid #2a4b63;border-radius:16px;padding:17px;display:grid;gap:11px}
+#tech-matrix .tm-entry-title{font-size:17px;font-weight:700}
+#tech-matrix .tm-entry label{font-size:11px;letter-spacing:.04em;color:#a7c4d8;display:grid;gap:6px}
+#tech-matrix .tm-entry input{width:100%}
+#tech-matrix .tm-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+#tech-matrix .tm-actions button{border:1px solid #487089;background:#14324a;color:#edf9ff;border-radius:11px;padding:11px 14px}
+#tech-matrix .tm-actions .tm-primary{background:#8ce5ff;color:#072034;border-color:#8ce5ff;font-weight:700}
+#tech-matrix .tm-note{font-size:12px!important;color:#9eb8ca!important}
+#tech-matrix .tm-empty{padding:22px;border:1px dashed #48657b;border-radius:12px}
+@media(max-width:600px){#tech-matrix{padding:14px}#tech-matrix .tm-head{align-items:center}#tech-matrix .tm-close{flex-shrink:0}#tech-matrix .tm-entry{padding:14px}}

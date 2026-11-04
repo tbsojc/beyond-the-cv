@@ -1,0 +1,21 @@
+
+#studio87-launch{border-color:#63d8fa88!important;color:#a8ebff!important}
+#studio87{position:fixed;inset:0;z-index:999999;background:#050c17eF;backdrop-filter:blur(22px);overflow-y:auto;color:#eaf6ff;font:14px/1.5 Inter,system-ui,sans-serif}
+#studio87[hidden]{display:none!important}#studio87 *{box-sizing:border-box}
+#studio87 .s87-wrap{width:min(1080px,calc(100% - 32px));margin:32px auto 60px}
+#studio87 .s87-top{display:flex;justify-content:space-between;align-items:start;gap:20px;margin-bottom:25px}
+#studio87 h2{font-size:clamp(28px,4vw,46px);letter-spacing:-.045em;margin:8px 0 6px}
+#studio87 h3{font-size:18px;margin:0 0 8px}#studio87 p{color:#a5bed2;margin:0 0 14px}
+#studio87 .s87-kicker{color:#70ddff;letter-spacing:.18em;font-size:11px;font-weight:750}
+#studio87 button,#studio87 .s87-file{border:1px solid #42647c;border-radius:10px;padding:10px 13px;background:#13283c;color:#eaf6ff;cursor:pointer;font-size:13px}
+#studio87 button:hover,#studio87 .s87-file:hover{border-color:#77dcff;background:#1c3b53}
+#studio87 button:focus-visible,#studio87 input:focus-visible{outline:2px solid #7bdfff;outline-offset:3px}
+#studio87 .s87-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+#studio87 .s87-card{background:#101e30;border:1px solid #29445e;border-radius:16px;padding:19px;display:flex;flex-direction:column;gap:9px;min-height:205px}
+#studio87 .s87-card p{flex:1;font-size:13px}#studio87 .s87-card button{align-self:start}
+#studio87 .s87-section{margin-top:22px;background:#0d1b2a;border:1px solid #29445e;border-radius:16px;padding:20px}
+#studio87 .s87-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#studio87 .s87-status{margin-top:14px;min-height:24px;color:#8fe3d0;font-size:13px}
+#studio87 .s87-notice{border-left:3px solid #e1ba76;padding:10px 14px;background:#382c2038;color:#dfc9a6;margin-top:14px;font-size:13px}
+#studio87 .s87-muted{font-size:12px;color:#91aabe}#studio87 .s87-file input{display:none}
+@media(max-width:800px){#studio87 .s87-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:550px){#studio87 .s87-grid{grid-template-columns:1fr}#studio87 .s87-wrap{margin-top:18px}#studio87 .s87-top{align-items:center}#studio87 .s87-card{min-height:0}}

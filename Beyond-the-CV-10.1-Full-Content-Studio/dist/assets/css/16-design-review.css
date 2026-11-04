@@ -1,0 +1,53 @@
+/* Beyond the CV 9.6 – design system and usability refinements */
+#journey88{--j96-accent:#8be5f7;--j96-ink:#eff9ff;--j96-muted:#b7ccda;background:#050b14;color:var(--j96-ink);scroll-padding-top:68px}
+#journey88 .j88-page{overflow:visible;contain:none;min-height:100svh;padding-block:clamp(100px,11vh,145px) clamp(88px,10vh,120px);scroll-snap-align:start}
+#journey88 .j88-page:before{background:radial-gradient(ellipse at 83% 17%,rgba(19,88,111,.27),transparent 53%),linear-gradient(140deg,rgba(9,24,38,.6),transparent 65%)}
+#journey88 .j88-page:nth-of-type(2n):before{background:radial-gradient(ellipse at 12% 75%,rgba(22,91,117,.23),transparent 57%)}
+#journey88 .j88-content{max-width:1120px;will-change:auto}
+#journey88 .j88-kicker{font-size:11px;letter-spacing:.2em;color:#93ddeb}
+#journey88 h1,#journey88 h2{letter-spacing:-.055em;font-weight:640;line-height:1.08;text-wrap:balance}
+#journey88 h1{font-size:clamp(42px,6.5vw,88px)}
+#journey88 h2{font-size:clamp(36px,5.1vw,67px)}
+#journey88 p{color:var(--j96-muted);line-height:1.72;max-width:68ch}
+#journey88 .j88-gradient{color:#91e3f6}
+#journey88 .j88-top{padding:16px clamp(18px,3vw,45px);background:linear-gradient(180deg,rgba(3,10,20,.98),rgba(3,10,20,.86) 75%,rgba(3,10,20,0));backdrop-filter:blur(8px)}
+#journey88 .j88-top span{max-width:75%;font-size:10px;letter-spacing:.12em;line-height:1.5}
+#journey88 .j96-top-divider{color:#5d9aab;margin-inline:7px}
+#journey88 .j88-top button{background:rgba(19,43,58,.82);border-color:#527c91;min-height:42px;padding-inline:14px}
+#journey88 .j88-button{border-radius:999px;background:#8de4f4;border-color:#8de4f4;color:#03131b;padding:14px 23px;font-size:14px;box-shadow:0 10px 36px rgba(55,177,209,.14)}
+#journey88 .j88-button:hover{background:#b5f3ff}
+#journey88 .j88-button.secondary{background:rgba(14,35,48,.55);color:#e7f7ff;border-color:#668a9e;box-shadow:none}
+#journey88 .j88-arrival .j88-content{gap:9px}
+#journey88 .j88-arrival .j88-logo{width:min(220px,37vw);max-height:30vh}
+#journey88 .j88-arrival h1{font-size:clamp(34px,4.5vw,62px);max-width:900px}
+#journey88 .j88-arrival p{margin-inline:auto}
+#journey88 .j88-personal{grid-template-columns:minmax(0,1.45fr) minmax(220px,.7fr);gap:clamp(30px,5vw,78px);align-items:start}
+#journey88 #j88-1 .j88-personal>div>p:first-of-type{font-size:clamp(18px,1.75vw,23px);line-height:1.6;color:#e5f3fa}
+#journey88 #j88-1 .j88-personal>div>p:nth-of-type(2){font-size:clamp(15px,1.3vw,18px)}
+#journey88 .j88-portrait{position:sticky;top:100px;max-height:min(58vh,500px);filter:drop-shadow(0 25px 65px rgba(10,113,149,.24))}
+#journey88 .j88-letter{background:rgba(15,38,53,.72);border:1px solid #41677b;border-radius:16px;margin-top:27px;padding:0;white-space:normal;max-width:72ch;overflow:hidden}
+#journey88 .j88-letter summary{padding:19px 23px;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:#d4f6ff;cursor:pointer}
+#journey88 .j88-letter summary::-webkit-details-marker{display:none}
+#journey88 .j88-letter summary span{font-size:21px;transition:transform .25s}
+#journey88 .j88-letter[open] summary span{transform:rotate(45deg)}
+#journey88 .j96-letter-body{padding:4px 23px 20px;border-top:1px solid #2c4c5f}
+#journey88 .j96-letter-body p{white-space:normal;line-height:1.8;font-size:15px;margin:18px 0}
+#journey88 .j88-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#journey88 .j88-stat{border-radius:18px;padding:clamp(17px,2vw,27px);background:linear-gradient(160deg,rgba(24,54,72,.9),rgba(11,28,42,.88));border:1px solid #35576b;min-width:0}
+#journey88 .j88-stat strong{font-size:clamp(25px,3.3vw,44px);color:#e7f9ff}
+#journey88 .j88-stat span{font-size:13px;line-height:1.65;color:#c5d8e2}
+#journey88 .j88-fitgrid{gap:15px;align-items:stretch}
+#journey88 .j88-fit{display:flex;flex-direction:column;align-items:flex-start;min-width:0;border-radius:18px;background:linear-gradient(155deg,#163247,#0b1c2b);border:1px solid #375c70;padding:clamp(18px,2.4vw,28px)}
+#journey88 .j88-fit strong{font-size:clamp(17px,1.6vw,21px);line-height:1.35;margin:18px 0 10px;text-wrap:balance}
+#journey88 .j88-fit p{font-size:14px;line-height:1.7;color:#c8dbe5}
+#journey88 .j88-fit button{margin-top:auto;border:1px solid #5e8ba2;background:rgba(29,72,93,.4);border-radius:999px;color:#c3f2ff;padding:12px 16px;text-align:left;font-size:13px}
+#journey88 .j88-fit button:hover{background:rgba(52,123,154,.38)}
+#journey88 #j88-4 .j88-content{max-width:850px}
+#journey88 #j88-4 p{margin-inline:auto}
+#journey88 .j88-progress{right:clamp(10px,2vw,30px);gap:14px}
+#journey88 .j88-progress button{width:12px;height:12px;min-width:12px;min-height:12px}
+#journey88 .j88-progress button[aria-current=step]{background:#c2f5ff}
+#journey88 .j88-page:not(.j89-visible) .j88-content{filter:none;opacity:.85;transform:translateY(15px)}
+@media(max-width:900px){#journey88 .j88-personal{grid-template-columns:1fr}#journey88 .j88-portrait{position:relative;top:auto;order:-1;max-height:180px;max-width:180px;margin:0 auto 12px}#journey88 .j88-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#journey88 .j88-fitgrid{grid-template-columns:1fr}#journey88 .j88-fit{min-height:0}#journey88 .j88-fit button{margin-top:10px}}
+@media(max-width:600px){#journey88 .j88-page{padding:96px 21px 94px;min-height:100svh}#journey88 .j88-content{padding-right:0}#journey88 .j88-top{padding:11px 16px}#journey88 .j88-top span{font-size:9px;max-width:58%}#journey88 .j88-top button{font-size:11px;max-width:42%;min-height:40px}#journey88 .j88-progress{bottom:12px;top:auto;right:50%;transform:translateX(50%);display:flex;gap:15px;padding:10px 14px;border-radius:999px;background:rgba(5,20,32,.93);border:1px solid #31556b}#journey88 .j88-stats{gap:10px}#journey88 .j88-stat{padding:15px}#journey88 .j88-stat strong{font-size:clamp(24px,7vw,35px)}#journey88 .j88-stat span{font-size:12px}#journey88 .j88-letter summary{padding:16px}#journey88 .j96-letter-body{padding:3px 16px 16px}#journey88 .j88-arrival .j88-logo{width:min(190px,42vw)}#journey88 .j88-scroll{margin-bottom:10px}}
+@media(prefers-reduced-motion:reduce){#journey88 .j88-page:not(.j89-visible) .j88-content{opacity:1;transform:none}#journey88 .j88-button,#journey88 .j88-fit,#journey88 .j88-stat{transition:none!important}}

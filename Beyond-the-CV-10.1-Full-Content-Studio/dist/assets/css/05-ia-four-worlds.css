@@ -1,0 +1,5 @@
+
+/* IA v8: Four distinct worlds, separate Career Journey */
+#nodes .node{max-width:220px;min-width:175px}
+#nodes .node strong{line-height:1.2}
+@media(max-width:760px){#nodes .node{min-width:0;max-width:43vw}#nodes .node strong{font-size:clamp(11px,2.6vw,16px)}}
