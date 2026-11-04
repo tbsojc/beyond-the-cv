@@ -6,76 +6,74 @@
   const button = document.getElementById('showcaseRefresh');
   const status = document.getElementById('showcaseStatus');
 
-  if (!frame || !button || !status) return;
-
-  let ready = false;
-  let pendingData = null;
-
-  function getData() {
-    if (typeof caseRead !== 'function') {
-      throw new Error('Case-Study-Formular nicht verfügbar.');
-    }
-
-    const data = caseRead();
-    if (!data.title) data.title = 'Unbenannte Case Study';
-    return data;
+  if (!frame || !button || !status) {
+    console.error('Showcase: HTML-Elemente fehlen.');
+    return;
   }
 
-  function sendData() {
-    if (!ready || !pendingData || !frame.contentWindow) {
+  let frameLoaded = false;
+
+  function field(id) {
+    return document.getElementById(id)?.value?.trim() || '';
+  }
+
+  function readCaseStudy() {
+    return {
+      id: field('caseId'),
+      title: field('caseTitle') || 'Interaktive Showcase-Vorschau',
+      company: field('caseCompany'),
+      role: field('caseRole'),
+      module: field('caseModule') || 'growth',
+      visual: field('caseVisual'),
+      challenge: field('caseChallenge'),
+      responsibility: field('caseResponsibility'),
+      actions: field('caseActions'),
+      results: field('caseResults'),
+      visibility: field('caseVisibility')
+    };
+  }
+
+  function sendPreview() {
+    if (!frameLoaded || !frame.contentWindow) {
+      status.textContent = '3D-Vorschau wird geladen …';
       return;
     }
 
-    frame.contentWindow.postMessage({
-      type: 'beyond-showcase-preview',
-      data: pendingData
-    }, window.location.origin);
+    const data = readCaseStudy();
+
+    frame.contentWindow.postMessage(
+      {
+        type: 'beyond-showcase-preview',
+        data
+      },
+      window.location.origin
+    );
 
     status.textContent =
-      'Case-Study-Daten an die 3D-Vorschau übertragen.';
+      'Vorschaudaten gesendet: ' + data.title;
   }
-
-  function refresh() {
-    try {
-      pendingData = getData();
-
-      if (!ready) {
-        status.textContent =
-          'Warte auf die 3D-Vorschau …';
-      } else {
-        sendData();
-      }
-    } catch (error) {
-      status.textContent = 'Fehler: ' + error.message;
-    }
-  }
-
-  window.addEventListener('message', event => {
-    if (
-      event.origin !== window.location.origin ||
-      event.source !== frame.contentWindow
-    ) return;
-
-    if (event.data?.type === 'beyond-showcase-ready') {
-      ready = true;
-      sendData();
-    }
-  });
 
   frame.addEventListener('load', () => {
-    ready = false;
-    refresh();
+    frameLoaded = true;
+    sendPreview();
   });
 
-  button.addEventListener('click', refresh);
+  button.addEventListener('click', () => {
+    sendPreview();
+  });
 
   document.getElementById('caseSelect')
     ?.addEventListener('change', () => {
-      setTimeout(refresh, 0);
+      setTimeout(sendPreview, 50);
     });
 
   document.getElementById('caseModule')
-    ?.addEventListener('change', refresh);
+    ?.addEventListener('change', sendPreview);
 
-  refresh();
+  // If the iframe loaded before this script ran,
+  // attempt delivery after initialization.
+  if (frame.contentDocument?.readyState === 'complete') {
+    frameLoaded = true;
+    sendPreview();
+  }
 })();
