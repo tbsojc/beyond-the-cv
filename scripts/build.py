@@ -19,6 +19,17 @@ valid=set('abcdefghijklmnopqrstuvwxyz0123456789-')
 # The template may contain example application data. Never publish it on the public homepage.
 # Personalized data is injected only into /b/<slug>/ pages below.
 neutral_template=re.sub(PATTERN,lambda m:m.group(1)+'window.__applicationData=null;'+m.group(2),TEMPLATE,count=1,flags=re.S)
+# The public portal is a focused, full-viewport experience; hide the legacy side panels.
+# Apply only to /, never to personalized application routes.
+HOME_CSS = """<style id="public-portal-layout">
+#hub > .hero, #hub > .side { display:none !important; }
+#hub { display:flex !important; align-items:center !important; justify-content:center !important; min-height:0 !important; padding:clamp(12px,2.6vw,38px) !important; }
+#hub > .stage { flex:1 1 auto !important; width:min(100%,1080px) !important; max-width:1080px !important; height:min(73vh,720px) !important; min-height:340px !important; margin:auto !important; }
+@media(max-width:1000px){#hub > .stage{height:min(66vh,650px) !important;}}
+@media(max-width:700px){#hub{height:100% !important;padding:12px 8px 20px !important;}#hub > .stage{width:100% !important;height:min(60vh,500px) !important;min-height:300px !important;max-width:540px !important;}}
+</style>"""
+neutral_template=neutral_template.replace('</head>',HOME_CSS+'</head>',1)
+neutral_template=re.sub(r'<title>.*?</title>','<title>Benedict Steinheil | Beyond the CV</title>',neutral_template,count=1,flags=re.S)
 (DIST/'index.html').write_text(embed_site(neutral_template),encoding='utf-8')
 for file in sorted(APPS.glob('*.json')):
     if file.name=='VORLAGE.json':continue
