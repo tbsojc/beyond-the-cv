@@ -1,0 +1,15 @@
+/* Beyond the CV 9.5: responsive, accessible final experience */
+#journey88{scroll-padding-top:0;scrollbar-color:#3e7891 #061321}
+#journey88 .j88-page{min-height:100svh;height:auto;scroll-snap-stop:normal}
+#journey88 .j88-content{padding-block:14px}
+#journey88 .j88-letter{max-width:70ch}
+#journey88 .j88-letter p{overflow-wrap:anywhere;line-height:1.8}
+#journey88 .j88-fit{min-width:0;overflow-wrap:anywhere}
+#journey88 .j88-fit a{overflow-wrap:anywhere}
+#journey88 .j88-progress button{width:15px;height:15px;min-width:15px;min-height:15px}
+#journey88 .j88-progress button:focus-visible,#journey88 .j88-top button:focus-visible,#journey88 .j88-fit button:focus-visible,#journey88 summary:focus-visible{outline:3px solid #83dfff;outline-offset:4px}
+#journey88 .j88-fit button{min-height:44px}
+#journey88 .j88-personal>div{min-width:0}
+@media(max-width:800px){#journey88 .j88-page{padding:88px 26px 80px}#journey88 .j88-top{background:#040b15f2}#journey88 .j88-progress{right:5px}#journey88 .j88-content{padding-right:8px}#journey88 .j88-personal{gap:12px}#journey88 .j88-letter{padding:15px}#journey88 .j88-stats{gap:9px}#journey88 .j88-stat{padding:15px}#journey88 .j88-fit{padding:17px}}
+@media(max-width:420px){#journey88 .j88-top span{max-width:55vw;line-height:1.5}#journey88 .j88-page{padding-inline:18px}#journey88 .j88-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#journey88 .j88-stat strong{font-size:26px}#journey88 .j88-stat span{font-size:12px}#journey88 .j88-actions .j88-button{width:100%}#journey88 .j88-progress{top:auto;bottom:14px;right:50%;transform:translateX(50%);display:flex;gap:14px;background:#061321dd;border-radius:99px;padding:8px 12px}#journey88 .j89-scrollcue{display:none}}
+@media(prefers-reduced-motion:reduce){#journey88{scroll-snap-type:none!important}#journey88 .j88-page{scroll-snap-align:none}}

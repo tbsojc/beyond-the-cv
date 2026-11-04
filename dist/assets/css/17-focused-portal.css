@@ -1,0 +1,16 @@
+/* 9.7 – The application contains the introduction; the portal only contains worlds. */
+body.personalized-portal #hub > .hero,
+body.personalized-portal #hub > .side { display:none !important; }
+body.personalized-portal #hub { display:flex !important; align-items:center; justify-content:center; padding:clamp(12px,2.6vw,38px) !important; min-height:0; }
+body.personalized-portal #hub > .stage { flex:1 1 auto; width:min(100%,1080px); max-width:1080px; height:min(73vh,720px); min-height:340px; margin:auto; }
+body.personalized-portal .top nav #homeBtn,
+body.personalized-portal .top nav #projectsBtn,
+body.personalized-portal .top nav #snapshot-launch { display:none !important; }
+body.personalized-portal .top nav #backToApplication {border-color:#69d9fa;background:#12334b;color:#e5f8ff;font-weight:700;}
+body.personalized-portal .top nav #backToApplication:hover {background:#1b4a65;}
+body.personalized-portal #executive-snapshot {display:none !important;}
+body.personalized-portal .bottom span:last-child {font-size:0;}
+body.personalized-portal .bottom span:last-child:after {content:'VIER KOMPETENZWELTEN · EIN PERSÖNLICHER EINBLICK';font-size:10px;}
+@media(max-width:1000px){body.personalized-portal #hub{display:flex !important; min-height:0;}body.personalized-portal #hub > .stage{height:min(66vh,650px);min-height:340px;}}
+@media(max-width:700px){body.personalized-portal .app{height:100dvh;min-height:100dvh;}body.personalized-portal .main{overflow:hidden;}body.personalized-portal #hub{height:100%;min-height:0;padding:12px 8px 20px !important;}body.personalized-portal #hub > .stage{width:100%;height:min(60vh,500px);min-height:300px;max-width:540px;}body.personalized-portal .top nav{justify-content:flex-start;}body.personalized-portal .bottom{padding:0 12px;}body.personalized-portal .bottom span:last-child{display:none;}}
+@media(prefers-reduced-motion:reduce){body.personalized-portal .stage:before,body.personalized-portal .core,body.personalized-portal .core img{animation:none !important;}}

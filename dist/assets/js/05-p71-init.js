@@ -1,0 +1,1 @@
+(()=>{try{const p=JSON.parse(document.getElementById('published-config').textContent||'{}');if(Array.isArray(p.cases))window.__BEYOND_PUBLISHED_CASES__=p.cases;}catch(e){console.error('Publizierte Projektdaten konnten nicht geladen werden',e)}})();
