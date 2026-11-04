@@ -400,6 +400,10 @@ window.addEventListener('message', (e) => {
   }
 
   setData(e.data.data);
+  window.parent.postMessage(
+  { type: 'beyond-showcase-updated' },
+  window.location.origin
+);
 });
 
 // Initial model
