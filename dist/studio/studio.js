@@ -27,7 +27,7 @@ $('connect').addEventListener('click',async()=>{const btn=$('connect');btn.disab
  const a={owner:$('owner').value.trim(),repo:$('repo').value.trim(),branch:$('branch').value.trim()||'main',token:$('token').value.trim()};if(!a.owner||!a.repo||!a.token)throw Error('Bitte Repository und Token eingeben.');auth=a;
  const list=await api('contents/applications?ref='+encodeURIComponent(auth.branch));files={};for(const item of list.filter(x=>x.name.endsWith('.json')&&x.name!=='VORLAGE.json')){
  const result=await api('contents/'+encodeURIComponent(item.path).replace(/%2F/g,'/')+'?ref='+encodeURIComponent(auth.branch));const data=JSON.parse(decode(result.content));files[data.slug]={sha:result.sha,data};}
- selected=Object.keys(files).sort()[0]||null;isNew=!selected;refreshList();if(selected)fill(files[selected].data);else $('new').click();$('workspace').hidden=false;const siteLoaded=await loadSite();$('connectionStatus').textContent='Verbunden · '+Object.keys(files).length+' Bewerbung(en)'+(siteLoaded?' · CV-Editor geladen':' · CV-Editor konnte nicht geladen werden (siehe Fehlermeldung)');$('token').value='';
+ selected=Object.keys(files).sort()[0]||null;isNew=!selected;refreshList();if(selected)fill(files[selected].data);else $('new').click();$('workspace').hidden=false;await loadCases();const siteLoaded=await loadSite();$('connectionStatus').textContent='Verbunden · '+Object.keys(files).length+' Bewerbung(en)'+(siteLoaded?' · CV-Editor geladen':' · CV-Editor konnte nicht geladen werden (siehe Fehlermeldung)');$('token').value='';
  }catch(err){$('connectionStatus').textContent='Fehler: '+err.message;auth=null}finally{btn.disabled=false}});
 $('preview').addEventListener('click',()=>{const d=read();if(!cleanSlug(d.slug)){alert('Bitte ein gültiges URL-Kürzel eingeben.');return}const w=window.open('','_blank');if(!w){alert('Pop-up blockiert.');return}const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));w.document.write('<!doctype html><html lang="de"><meta charset="utf-8"><title>Inhaltsvorschau</title><style>body{font:17px/1.7 system-ui;background:#06111e;color:#e9f6ff;max-width:760px;margin:40px auto;padding:20px}h1{color:#80dfff}section{border-top:1px solid #47677c;margin-top:26px;padding-top:18px}p{white-space:pre-wrap}</style><h1>'+esc(d.company)+'</h1><h2>'+esc(d.role)+'</h2><p>'+esc(d.greeting)+'</p><section><h2>Persönliche Ansprache</h2><p>'+esc(d.personalNote)+'</p></section><section><h2>Motivation</h2><p>'+esc(d.motivation)+'</p></section><section><h2>Anschreiben</h2><p>'+esc(d.letter)+'</p></section><section><h2>Job Fit</h2>'+d.jobFit.map(f=>'<h3>'+esc(f.requirement)+'</h3><p>'+esc(f.evidence)+'</p>').join('')+'</section>');w.document.close()});
 $('save').addEventListener('click',async()=>{const d=read();if(!auth){alert('Zuerst GitHub verbinden.');return}if(!cleanSlug(d.slug)){alert('URL-Kürzel: nur Kleinbuchstaben, Zahlen und Bindestriche.');return}if(!isNew&&selected!==d.slug){alert('Bestehende URL-Kürzel dürfen nicht geändert werden.');return}if(isNew&&files[d.slug]){alert('Dieses URL-Kürzel ist bereits vergeben.');return}for(const field of ['company','role','greeting','personalNote','motivation','letter'])if(!d[field]){alert('Bitte ausfüllen: '+field);return}if(d.jobFit.some(f=>!f.requirement||!f.evidence)){alert('Bitte alle drei Job-Fit-Karten ausfüllen.');return}
@@ -84,4 +84,48 @@ $('siteSave').addEventListener('click',async()=>{
  const btn=$('siteSave');btn.disabled=true;$('siteStatus').textContent='Speichere …';
  try{const body={message:'Content Studio: update shared CV content',content:encode(JSON.stringify(siteData,null,2)+'\n'),branch:auth.branch,sha:siteSha};const result=await api('contents/content/site.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});siteSha=result.content.sha;$('siteStatus').textContent='Gespeichert. GitHub Actions baut die Startseite und alle Bewerbungen neu.';}
  catch(e){$('siteStatus').textContent='Fehler: '+e.message}finally{btn.disabled=false}
+});
+
+
+// Application Studio 12.0 / Phase 1: private, reusable case-study library.
+let caseFiles={},caseSelected=null,caseIsNew=false;
+const caseFields={id:'caseId',title:'caseTitle',company:'caseCompany',period:'casePeriod',role:'caseRole',module:'caseModule',challenge:'caseChallenge',responsibility:'caseResponsibility',actions:'caseActions',results:'caseResults',evidence:'caseEvidence',tags:'caseTags',visual:'caseVisual',visibility:'caseVisibility'};
+const casePath=id=>'case-studies/'+id+'.json';
+function caseRead(){const data={};for(const [key,field] of Object.entries(caseFields))data[key]=$(field).value.trim();data.tags=data.tags.split(',').map(s=>s.trim()).filter(Boolean);data.schemaVersion=1;return data;}
+function caseFill(data){for(const [key,field] of Object.entries(caseFields))$(field).value=key==='tags'?(data.tags||[]).join(', '):(data[key]||'');$('caseId').readOnly=!caseIsNew;}
+function caseRefresh(){const el=$('caseSelect');el.replaceChildren();for(const id of Object.keys(caseFiles).sort()){const option=document.createElement('option');option.value=id;option.textContent=caseFiles[id].data.title||id;el.append(option);}if(caseSelected)el.value=caseSelected;}
+function caseSelect(id){caseSelected=id;caseIsNew=false;caseFill(caseFiles[id].data);caseRefresh();}
+$('caseSelect').addEventListener('change',()=>{if(caseFiles[$('caseSelect').value])caseSelect($('caseSelect').value)});
+$('caseNew').addEventListener('click',()=>{caseSelected=null;caseIsNew=true;caseFill({module:'growth',visibility:'internal'});$('caseId').focus()});
+async function loadCases(){
+ try{
+  caseFiles={};let list=[];
+  try{list=await api('contents/case-studies?ref='+encodeURIComponent(auth.branch))}
+  catch(e){if(!/HTTP 404/.test(e.message))throw e;}
+  for(const item of list.filter(x=>x.type==='file'&&x.name.endsWith('.json')&&!x.name.startsWith('_'))){
+   const file=await api('contents/'+casePath(item.name.slice(0,-5))+'?ref='+encodeURIComponent(auth.branch));
+   caseFiles[item.name.slice(0,-5)]={sha:file.sha,data:JSON.parse(decode(file.content))};
+  }
+  $('caseWorkspace').hidden=false;
+  if(Object.keys(caseFiles).length)caseSelect(Object.keys(caseFiles).sort()[0]);else $('caseNew').click();
+  $('caseStatus').textContent=Object.keys(caseFiles).length+' Case Studies geladen.';
+ }catch(e){$('caseWorkspace').hidden=true;$('connectionStatus').textContent+=' · Case-Study-Bibliothek nicht geladen: '+e.message;}
+}
+$('caseSave').addEventListener('click',async()=>{
+ if(!auth)return;const d=caseRead();if(!cleanSlug(d.id)){alert('Bitte eine gültige ID mit Kleinbuchstaben, Zahlen und Bindestrichen verwenden.');return}
+ if(!d.title||!d.company||!d.challenge||!d.responsibility){alert('Bitte Titel, Unternehmen, Herausforderung und Verantwortung ausfüllen.');return}
+ if(!caseIsNew&&caseSelected!==d.id){alert('Die ID einer bestehenden Case Study darf nicht verändert werden.');return}
+ if(!confirm('Case Study „'+d.title+'“ im privaten GitHub-Repository speichern?'))return;
+ const btn=$('caseSave');btn.disabled=true;$('caseStatus').textContent='Speichere …';
+ try{const old=caseFiles[d.id];const body={message:'Application Studio: '+(old?'update ':'create ')+'case '+d.id,content:encode(JSON.stringify(d,null,2)+'\n'),branch:auth.branch};if(old)body.sha=old.sha;
+  const result=await api('contents/'+casePath(d.id),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  caseFiles[d.id]={sha:result.content.sha,data:d};caseSelect(d.id);$('caseStatus').textContent='Gespeichert in GitHub. Noch nicht öffentlich eingebunden.';
+ }catch(e){$('caseStatus').textContent='Fehler: '+e.message}finally{btn.disabled=false}
+});
+$('caseDelete').addEventListener('click',async()=>{
+ if(!auth||!caseSelected||!caseFiles[caseSelected])return;
+ const id=caseSelected;if(!confirm('Case Study „'+id+'“ endgültig aus GitHub löschen?'))return;
+ const btn=$('caseDelete');btn.disabled=true;
+ try{await api('contents/'+casePath(id),{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Application Studio: delete case '+id,sha:caseFiles[id].sha,branch:auth.branch})});delete caseFiles[id];caseSelected=null;if(Object.keys(caseFiles).length)caseSelect(Object.keys(caseFiles).sort()[0]);else{$('caseSelect').replaceChildren();$('caseNew').click()}$('caseStatus').textContent='Case Study gelöscht.';
+ }catch(e){$('caseStatus').textContent='Löschen fehlgeschlagen: '+e.message}finally{btn.disabled=false}
 });
