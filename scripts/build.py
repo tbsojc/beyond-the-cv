@@ -48,38 +48,47 @@ for file in sorted(APPS.glob('*.json')):
     for item in fit:
         if not isinstance(item.get('world'),int) or item['world'] not in range(4):sys.exit('Ungültige Kompetenzwelt: '+file.name)
         if not isinstance(item.get('requirement'),str) or not isinstance(item.get('evidence'),str):sys.exit('Ungültiger Job Fit')
-    # Phase 3: Resolve only explicitly selected and reviewed Case Studies.
+    # Projects are maintained centrally in case-studies/*.json.
+    # Each project can target several application slugs. Legacy per-application
+    # assignments remain supported during migration, without double rendering.
     assignments=data.get('showcases',[])
-    if not isinstance(assignments,list) or len(assignments)>3:
-        sys.exit('Maximal drei Showcases erlaubt: '+file.name)
-    public_cases=[]; seen=set()
-    allowed=('id','title','company','period','role','module','challenge',
-             'responsibility','actions','results','evidence','tags','visual')
-    for index,assignment in enumerate(assignments):
-        if not isinstance(assignment,dict):sys.exit('Ungültige Showcase-Zuordnung: '+file.name)
-        case_id=assignment.get('caseStudyId')
+    if not isinstance(assignments,list):sys.exit('Ungültige Showcase-Zuordnungen: '+file.name)
+    legacy={}
+    for item in assignments:
+        if not isinstance(item,dict):sys.exit('Ungültige Showcase-Zuordnung: '+file.name)
+        case_id=item.get('caseStudyId')
         if not isinstance(case_id,str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',case_id):
             sys.exit('Ungültige Case-Study-ID: '+file.name)
-        if case_id in seen:sys.exit('Doppelte Case Study: '+case_id)
-        seen.add(case_id)
-        source=ROOT/'case-studies'/(case_id+'.json')
-        if not source.is_file():sys.exit('Case Study fehlt: '+case_id)
+        legacy[case_id]=item
+    public_cases=[]
+    allowed=('id','title','company','period','role','module','challenge',
+             'responsibility','actions','results','evidence','tags','visual')
+    for source in sorted((ROOT/'case-studies').glob('*.json')):
         case=json.loads(source.read_text(encoding='utf-8'))
-        if case.get('id')!=case_id or case.get('visibility')!='reviewed':
-            sys.exit('Case Study nicht freigegeben: '+case_id)
+        case_id=case.get('id')
+        if not isinstance(case_id,str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',case_id) or source.stem!=case_id:
+            sys.exit('Ungültiger Projekt-Slug: '+str(source))
+        targets=case.get('applicationSlugs',[])
+        if not isinstance(targets,list) or any(not isinstance(x,str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',x) for x in targets):
+            sys.exit('Ungültige Bewerbungs-Slugs in Projekt: '+case_id)
+        assigned=(slug in targets) if 'applicationSlugs' in case else (case_id in legacy)
+        if not assigned:continue
+        if case.get('visibility')!='reviewed':
+            # Draft projects never appear publicly. Legacy unpublished assignments
+            # are also safely ignored instead of breaking every deployment.
+            continue
         if case.get('module') not in ('growth','brand','international','product','leadership'):
-            sys.exit('Unbekanntes 3D-Modul: '+case_id)
-        req=assignment.get('requirementIndex')
-        if type(req) is not int or req not in range(3):
-            sys.exit('Ungültiger Job-Fit-Bezug: '+case_id)
-        headline=assignment.get('headline','')
-        relevance=assignment.get('relevance','')
-        if not isinstance(headline,str) or not headline.strip() or not isinstance(relevance,str) or not relevance.strip():
-            sys.exit('Showcase ohne Überschrift/Stellenbezug: '+case_id)
+            sys.exit('Unbekanntes Projektmodul: '+case_id)
+        old={} if slug in targets else legacy.get(case_id,{})
+        headline=old.get('headline') or case.get('headline') or case.get('title') or case_id
+        relevance=old.get('relevance') or case.get('relevance') or ''
+        req=old.get('requirementIndex',case.get('requirementIndex',0))
+        if type(req) is not int or req not in range(3):req=0
         public_case={k:case[k] for k in allowed if k in case}
         public_case.update({'headline':headline,'relevance':relevance,
-                            'requirementIndex':req,'order':index+1})
+                            'requirementIndex':req,'order':case.get('order',100)})
         public_cases.append(public_case)
+    public_cases.sort(key=lambda x:(x.get('order') if type(x.get('order')) is int else 100,x.get('title','')))
     # Do not leak references to unpublished/internal projects via application JSON.
     data.pop('showcases',None)
     data['publicShowcases']=public_cases

@@ -18,7 +18,7 @@ function fill(data){for(const key of keys)$(key).value=data[key]||'';$('publishe
  for(const [field,label] of [['requirement','Anforderung'],['evidence','Dein konkreter Nachweis']]){const lab=document.createElement('label');lab.textContent=label;const el=document.createElement('textarea');el.rows=2;el.dataset.fit=i;el.dataset.field=field;el.value=item[field]||'';lab.append(el);wrap.append(lab)}
  const lab=document.createElement('label');lab.textContent='Verlinkte Kompetenzwelt';const sel=document.createElement('select');sel.dataset.fit=i;sel.dataset.field='world';['Digital Growth & Commerce','Digital Products & Technology','Leadership & International Scale','Brand, Marketing & Transformation'].forEach((name,n)=>{const o=document.createElement('option');o.value=n;o.textContent=(n+1)+' · '+name;sel.append(o)});sel.value=item.world??i;lab.append(sel);wrap.append(lab);fits.append(wrap);
  }$('slug').readOnly=!isNew;updateUrl()}
-function read(){const d=(!isNew && selected && files[selected]) ? JSON.parse(JSON.stringify(files[selected].data)) : {};for(const key of keys)d[key]=$(key).value.trim();d.published=$('published').checked;d.jobFit=[];for(let i=0;i<3;i++){const q=f=>document.querySelector('[data-fit="'+i+'"][data-field="'+f+'"]');d.jobFit.push({requirement:q('requirement').value.trim(),evidence:q('evidence').value.trim(),world:Number(q('world').value)})}d.showcases=readCaseAssignments();return d}
+function read(){const d=(!isNew && selected && files[selected]) ? JSON.parse(JSON.stringify(files[selected].data)) : {};for(const key of keys)d[key]=$(key).value.trim();d.published=$('published').checked;d.jobFit=[];for(let i=0;i<3;i++){const q=f=>document.querySelector('[data-fit="'+i+'"][data-field="'+f+'"]');d.jobFit.push({requirement:q('requirement').value.trim(),evidence:q('evidence').value.trim(),world:Number(q('world').value)})}return d}
 function updateUrl(){$('urlPreview').textContent='/b/'+$('slug').value+'/'}$('slug').addEventListener('input',updateUrl);
 function refreshList(){const select=$('appSelect');select.replaceChildren();for(const slug of Object.keys(files).sort()){const opt=document.createElement('option');opt.value=slug;opt.textContent=slug;select.append(opt)}if(selected&&files[selected])select.value=selected}
 $('appSelect').addEventListener('change',()=>{selected=$('appSelect').value;isNew=false;fill(files[selected].data)});
@@ -27,10 +27,10 @@ $('connect').addEventListener('click',async()=>{const btn=$('connect');btn.disab
  const a={owner:$('owner').value.trim(),repo:$('repo').value.trim(),branch:$('branch').value.trim()||'main',token:$('token').value.trim()};if(!a.owner||!a.repo||!a.token)throw Error('Bitte Repository und Token eingeben.');auth=a;
  const list=await api('contents/applications?ref='+encodeURIComponent(auth.branch));files={};for(const item of list.filter(x=>x.name.endsWith('.json')&&x.name!=='VORLAGE.json')){
  const result=await api('contents/'+encodeURIComponent(item.path).replace(/%2F/g,'/')+'?ref='+encodeURIComponent(auth.branch));const data=JSON.parse(decode(result.content));files[data.slug]={sha:result.sha,data};}
- selected=Object.keys(files).sort()[0]||null;isNew=!selected;refreshList();if(selected)fill(files[selected].data);else $('new').click();$('workspace').hidden=false;await loadSite();await loadCaseLibrary();window.dispatchEvent(new Event('studio-connected'));$('connectionStatus').textContent='Verbunden · '+Object.keys(files).length+' Bewerbung(en)';$('token').value='';
+ selected=Object.keys(files).sort()[0]||null;isNew=!selected;refreshList();if(selected)fill(files[selected].data);else $('new').click();$('workspace').hidden=false;await loadSite();await loadProjects();window.dispatchEvent(new Event('studio-connected'));$('connectionStatus').textContent='Verbunden · '+Object.keys(files).length+' Bewerbung(en)';$('token').value='';
  }catch(err){$('connectionStatus').textContent='Fehler: '+err.message;auth=null}finally{btn.disabled=false}});
 $('preview').addEventListener('click',()=>{const d=read();if(!cleanSlug(d.slug)){alert('Bitte ein gültiges URL-Kürzel eingeben.');return}const w=window.open('','_blank');if(!w){alert('Pop-up blockiert.');return}const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));w.document.write('<!doctype html><html lang="de"><meta charset="utf-8"><title>Inhaltsvorschau</title><style>body{font:17px/1.7 system-ui;background:#06111e;color:#e9f6ff;max-width:760px;margin:40px auto;padding:20px}h1{color:#80dfff}section{border-top:1px solid #47677c;margin-top:26px;padding-top:18px}p{white-space:pre-wrap}</style><h1>'+esc(d.company)+'</h1><h2>'+esc(d.role)+'</h2><p>'+esc(d.greeting)+'</p><section><h2>Persönliche Ansprache</h2><p>'+esc(d.personalNote)+'</p></section><section><h2>Motivation</h2><p>'+esc(d.motivation)+'</p></section><section><h2>Anschreiben</h2><p>'+esc(d.letter)+'</p></section><section><h2>Job Fit</h2>'+d.jobFit.map(f=>'<h3>'+esc(f.requirement)+'</h3><p>'+esc(f.evidence)+'</p>').join('')+'</section>');w.document.close()});
-$('save').addEventListener('click',async()=>{const d=read();if(!auth){alert('Zuerst GitHub verbinden.');return}if(!cleanSlug(d.slug)){alert('URL-Kürzel: nur Kleinbuchstaben, Zahlen und Bindestriche.');return}if(!isNew&&selected!==d.slug){alert('Bestehende URL-Kürzel dürfen nicht geändert werden.');return}if(isNew&&files[d.slug]){alert('Dieses URL-Kürzel ist bereits vergeben.');return}for(const field of ['company','role','greeting','personalNote','motivation','letter'])if(!d[field]){alert('Bitte ausfüllen: '+field);return}if(new Set(d.showcases.map(x=>x.caseStudyId)).size!==d.showcases.length){alert('Jede Case Study darf nur einmal verwendet werden.');return}if(d.showcases.some(x=>!x.headline||!x.relevance)){alert('Bitte Überschrift und Stellenbezug aller Projekte ausfüllen.');return}if(d.jobFit.some(f=>!f.requirement||!f.evidence)){alert('Bitte alle drei Job-Fit-Karten ausfüllen.');return}
+$('save').addEventListener('click',async()=>{const d=read();if(!auth){alert('Zuerst GitHub verbinden.');return}if(!cleanSlug(d.slug)){alert('URL-Kürzel: nur Kleinbuchstaben, Zahlen und Bindestriche.');return}if(!isNew&&selected!==d.slug){alert('Bestehende URL-Kürzel dürfen nicht geändert werden.');return}if(isNew&&files[d.slug]){alert('Dieses URL-Kürzel ist bereits vergeben.');return}for(const field of ['company','role','greeting','personalNote','motivation','letter'])if(!d[field]){alert('Bitte ausfüllen: '+field);return}if(d.jobFit.some(f=>!f.requirement||!f.evidence)){alert('Bitte alle drei Job-Fit-Karten ausfüllen.');return}
  if(!confirm('Bewerbung „'+d.company+'“ speichern und automatische Netlify-Veröffentlichung starten?'))return;
  const btn=$('save');btn.disabled=true;$('saveStatus').textContent='Speichere in GitHub …';try{const old=files[d.slug];const body={message:'Content Studio: '+(old?'Update ':'Create ')+d.slug,content:encode(JSON.stringify(d,null,2)+'\n'),branch:auth.branch};if(old)body.sha=old.sha;const result=await api('contents/'+pathFor(d.slug),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});files[d.slug]={data:d,sha:result.content.sha};selected=d.slug;isNew=false;refreshList();fill(d);window.dispatchEvent(new Event('studio-saved'));$('saveStatus').textContent='Gespeichert. GitHub Actions startet den Deploy (Status in GitHub → Actions).';}catch(err){$('saveStatus').textContent='Nicht gespeichert: '+err.message}finally{btn.disabled=false}});
 
@@ -125,50 +125,55 @@ $('siteSave').addEventListener('click',async()=>{
  catch(e){$('siteStatus').textContent='Fehler: '+e.message}finally{btn.disabled=false}
 });
 
-// V6: reviewed case studies and application-specific assignments.
-async function loadCaseLibrary(){
- caseLibrary=[];
- try {
-  const entries=await api('contents/case-studies?ref='+encodeURIComponent(auth.branch));
-  for(const item of entries.filter(x=>x.name.endsWith('.json'))){
-   const result=await api('contents/'+item.path+'?ref='+encodeURIComponent(auth.branch));
-   const data=JSON.parse(decode(result.content));
-   if(data.visibility==='reviewed')caseLibrary.push({id:data.id,title:data.title||data.id});
-  }
- }catch(err){console.warn('Case-Study-Bibliothek nicht verfügbar:',err.message)}
+
+// V7: central project library; projects own their application-slug assignments.
+let projectFiles={},projectSelected=null,projectIsNew=false;
+const projectFields={id:'projectId',title:'projectTitle',company:'projectCompany',period:'projectPeriod',role:'projectRole',module:'projectModule',visibility:'projectVisibility',headline:'projectHeadline',relevance:'projectRelevance',challenge:'projectChallenge',responsibility:'projectResponsibility',actions:'projectActions',results:'projectResults',evidence:'projectEvidence',visual:'projectVisual',requirementIndex:'projectRequirementIndex',order:'projectOrder'};
+const projectPath=id=>'case-studies/'+id+'.json';
+function projectList(){const sel=$('projectSelect');sel.replaceChildren();for(const id of Object.keys(projectFiles).sort()){const item=projectFiles[id].data;const opt=document.createElement('option');opt.value=id;opt.textContent=(item.title||id)+' · '+id;sel.append(opt)}if(projectSelected)sel.value=projectSelected;}
+function projectFill(data){for(const [key,id] of Object.entries(projectFields)){$(id).value=(key==='visual' && typeof data[key]==='object')?'':(data[key]??(key==='order'?100:''))} $('projectTags').value=(data.tags||[]).join(', ');$('projectApplicationSlugs').value=(data.applicationSlugs||[]).join(', ');$('projectId').readOnly=!projectIsNew;$('projectEditor').hidden=false;renderProjectSlugChoices();}
+function renderProjectSlugChoices(){const root=$('projectSlugChoices');root.replaceChildren();const slugs=new Set($('projectApplicationSlugs').value.split(/[\s,;]+/).filter(Boolean));for(const slug of Object.keys(files).sort()){const label=document.createElement('label');label.className='slug-choice';const cb=document.createElement('input');cb.type='checkbox';cb.value=slug;cb.checked=slugs.has(slug);cb.onchange=()=>{const set=new Set($('projectApplicationSlugs').value.split(/[\s,;]+/).filter(Boolean));if(cb.checked)set.add(slug);else set.delete(slug);$('projectApplicationSlugs').value=[...set].join(', ')};label.append(cb,document.createTextNode(' '+slug));root.append(label)}}
+function projectSelect(id){projectSelected=id;projectIsNew=false;projectFill(projectFiles[id].data);projectList()}
+$('projectSelect').addEventListener('change',()=>{if(projectFiles[$('projectSelect').value])projectSelect($('projectSelect').value)});
+$('projectApplicationSlugs').addEventListener('input',renderProjectSlugChoices);
+$('projectNew').addEventListener('click',()=>{projectSelected=null;projectIsNew=true;projectFill({module:'growth',visibility:'internal',order:100,requirementIndex:0});$('projectId').focus()});
+async function loadProjects(){
+ try{projectFiles={};let entries=[];try{entries=await api('contents/case-studies?ref='+encodeURIComponent(auth.branch))}catch(err){if(!/HTTP 404/.test(err.message))throw err}
+  for(const entry of entries.filter(x=>x.type==='file'&&x.name.endsWith('.json')&&!x.name.startsWith('_'))){const file=await api('contents/'+entry.path+'?ref='+encodeURIComponent(auth.branch));const data=JSON.parse(decode(file.content));projectFiles[data.id]={sha:file.sha,data}}
+  if(Object.keys(projectFiles).length)projectSelect(Object.keys(projectFiles).sort()[0]);else $('projectNew').click();
+  $('projectLibraryStatus').textContent=Object.keys(projectFiles).length+' Projekte geladen. Änderungen werden in case-studies/*.json gespeichert.';
+ }catch(err){$('projectLibraryStatus').textContent='Projektbibliothek konnte nicht geladen werden: '+err.message;console.error(err)}
 }
-function renderCaseAssignments(){
- const root=$('caseAssignments');if(!root)return;
- root.replaceChildren();
- const heading=document.createElement('h3');heading.textContent='Case Studies für diese Bewerbung';root.append(heading);
- const info=document.createElement('p');info.className='hint';info.textContent='Bis zu drei freigegebene Projekte. Reihenfolge und Stellenbezug werden auf der Bewerbungsseite übernommen.';root.append(info);
- const current=(!isNew&&selected&&files[selected])?files[selected].data.showcases||[]:[];
- for(let i=0;i<3;i++){
-  const item=current[i]||{};
-  const card=document.createElement('div');card.className='fit';card.dataset.caseIndex=i;
-  const h=document.createElement('strong');h.textContent='Projekt '+(i+1);card.append(h);
-  const lab=document.createElement('label');lab.textContent='Case Study';
-  const sel=document.createElement('select');sel.dataset.caseField='caseStudyId';
-  const empty=document.createElement('option');empty.value='';empty.textContent='Kein Projekt';sel.append(empty);
-  for(const c of caseLibrary){const opt=document.createElement('option');opt.value=c.id;opt.textContent=c.title;sel.append(opt)}
-  if(item.caseStudyId&&!caseLibrary.some(c=>c.id===item.caseStudyId)){const opt=document.createElement('option');opt.value=item.caseStudyId;opt.textContent=item.caseStudyId+' (nicht freigegeben)';sel.append(opt)}
-  sel.value=item.caseStudyId||'';lab.append(sel);card.append(lab);
-  for(const [field,label] of [['headline','Überschrift'],['relevance','Relevanz für die Stelle']]){
-   const l=document.createElement('label');l.textContent=label;
-   const input=document.createElement('textarea');input.rows=2;input.dataset.caseField=field;input.value=item[field]||'';l.append(input);card.append(l);
-  }
-  const fit=document.createElement('label');fit.textContent='Bezug zur Anforderung';
-  const fitSel=document.createElement('select');fitSel.dataset.caseField='requirementIndex';
-  for(let n=0;n<3;n++){const opt=document.createElement('option');opt.value=n;opt.textContent='Anforderung '+(n+1);fitSel.append(opt)}
-  fitSel.value=String(item.requirementIndex??0);fit.append(fitSel);card.append(fit);root.append(card);
- }
+function projectRead(){const old=(!projectIsNew&&projectSelected&&projectFiles[projectSelected])?structuredClone(projectFiles[projectSelected].data):{};
+ for(const [key,id] of Object.entries(projectFields)){if(key==='visual'&&typeof old.visual==='object'&&!$(id).value.trim())continue;old[key]=$(id).value.trim();}
+ old.order=Number(old.order);old.requirementIndex=Number(old.requirementIndex);
+ old.tags=$('projectTags').value.split(',').map(x=>x.trim()).filter(Boolean);
+ old.applicationSlugs=[...new Set($('projectApplicationSlugs').value.split(/[\s,;]+/).map(x=>x.trim()).filter(Boolean))];
+ old.schemaVersion=1;return old;
 }
-function readCaseAssignments(){
- const result=[];
- for(const card of document.querySelectorAll('[data-case-index]')){
-  const get=field=>card.querySelector('[data-case-field="'+field+'"]').value.trim();
-  if(!get('caseStudyId'))continue;
-  result.push({caseStudyId:get('caseStudyId'),headline:get('headline'),relevance:get('relevance'),requirementIndex:Number(get('requirementIndex')),order:result.length+1});
- }
- return result;
-}
+$('projectSave').addEventListener('click',async()=>{
+ if(!auth){alert('Bitte zuerst GitHub verbinden.');return}
+ const d=projectRead();if(!cleanSlug(d.id)){alert('Projekt-Slug: nur Kleinbuchstaben, Zahlen und Bindestriche.');return}
+ if(!projectIsNew&&projectSelected!==d.id){alert('Ein bestehender Projekt-Slug kann nicht geändert werden.');return}
+ if(projectIsNew&&projectFiles[d.id]){alert('Dieser Projekt-Slug ist bereits vergeben.');return}
+ if(!d.title||!d.company||!d.challenge||!d.responsibility){alert('Bitte Titel, Unternehmen, Herausforderung und Verantwortung ausfüllen.');return}
+ if(d.applicationSlugs.some(x=>!cleanSlug(x))){alert('Ungültiger Bewerbungs-Slug.');return}
+ const unknown=d.applicationSlugs.filter(x=>!files[x]);if(unknown.length&&!confirm('Diese Bewerbungs-Slugs sind noch nicht vorhanden: '+unknown.join(', ')+'. Trotzdem speichern?'))return;
+ if(!Number.isInteger(d.order)||d.order<0){alert('Sortierung muss eine positive ganze Zahl sein.');return}
+ if(!confirm('Projekt „'+d.title+'“ speichern? GitHub Actions baut anschließend die verknüpften Bewerbungen neu.'))return;
+ const btn=$('projectSave');btn.disabled=true;$('projectStatus').textContent='Speichere Projekt …';
+ try{const old=projectFiles[d.id];const body={message:'Studio: '+(old?'update ':'create ')+'project '+d.id,content:encode(JSON.stringify(d,null,2)+'\n'),branch:auth.branch};if(old)body.sha=old.sha;
+  const result=await api('contents/'+projectPath(d.id),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  projectFiles[d.id]={sha:result.content.sha,data:d};projectSelect(d.id);$('projectStatus').textContent='Projekt gespeichert. GitHub Actions veröffentlicht die freigegebenen Zuordnungen.';
+ }catch(err){$('projectStatus').textContent='Speichern fehlgeschlagen: '+err.message}finally{btn.disabled=false}
+});
+$('projectDelete').addEventListener('click',async()=>{
+ if(!auth||!projectSelected||!projectFiles[projectSelected])return;
+ const id=projectSelected;const item=projectFiles[id].data;
+ if(!confirm('Projekt „'+id+'“ endgültig löschen? Es wird aus ALLEN verknüpften Bewerbungen entfernt.'))return;
+ const btn=$('projectDelete');btn.disabled=true;
+ try{await api('contents/'+projectPath(id),{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Studio: delete project '+id,sha:projectFiles[id].sha,branch:auth.branch})});delete projectFiles[id];projectSelected=null;
+  if(Object.keys(projectFiles).length)projectSelect(Object.keys(projectFiles).sort()[0]);else{$('projectSelect').replaceChildren();$('projectNew').click()}
+  $('projectStatus').textContent='Projekt gelöscht. Bitte vorhandene alte Showcase-Zuordnungen in Bewerbungen bei Bedarf bereinigen.';
+ }catch(err){$('projectStatus').textContent='Löschen fehlgeschlagen: '+err.message}finally{btn.disabled=false}
+});

@@ -14,7 +14,6 @@
     });
     $('connection').hidden=connected || name!=='settings' && name!=='overview';
     if(name==='overview' && connected) $('connection').hidden=true;
-    if(name==='shared' && connected && typeof renderSite==='function') { try { renderSite(); } catch(error) { const status=$('siteEditorStatus'); if(status)status.textContent='Editorfehler: '+error.message; console.error(error); } }
     window.scrollTo({top:0,behavior:'instant'});
   }
   function cards() {
@@ -37,10 +36,9 @@
     const selected=$('appSelect').value || options[0]?.value;
     if(selected) $('liveLink').href='/b/'+encodeURIComponent(selected)+'/';
   }
-  function assignments(){ if(typeof renderCaseAssignments==='function')renderCaseAssignments(); }
+  function assignments(){ /* Projects are managed centrally. */ }
   tabs.forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
   $('overviewNew').addEventListener('click',()=>{$('new').click();show('application');});
-  $('evidenceSave').addEventListener('click',()=>$('save').click());
   $('appSelect').addEventListener('change',()=>{cards();assignments();});
   $('new').addEventListener('click',()=>{assignments();show('application');});
   window.addEventListener('studio-connected',()=>{connected=true;cards();assignments();show('overview');});
