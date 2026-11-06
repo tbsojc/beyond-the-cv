@@ -1,0 +1,29 @@
+{
+  "id": "testprojekt2",
+  "title": "testpr2",
+  "company": "testunternehmen",
+  "period": "2-3",
+  "role": "rolletest",
+  "module": "growth",
+  "visibility": "reviewed",
+  "headline": "überschrtest2",
+  "relevance": "relevanztest2",
+  "challenge": "herausftest",
+  "responsibility": "verantwtest",
+  "actions": "umstest",
+  "results": "ergtest",
+  "evidence": "https://www.figma.com/",
+  "visual": "visualisierungt",
+  "requirementIndex": 0,
+  "order": 99,
+  "tags": [
+    "br",
+    "ab",
+    "xy"
+  ],
+  "applicationSlugs": [
+    "qrailing-product-marketing",
+    "testbewerbung"
+  ],
+  "schemaVersion": 1
+}
