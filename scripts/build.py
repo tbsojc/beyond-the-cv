@@ -17,7 +17,6 @@ elif isinstance(SITE.get('pdf'),str):
 def safe_json(value):
     return json.dumps(value,ensure_ascii=False,separators=(',',':')).replace('<',r'\u003c').replace('>',r'\u003e').replace('&',r'\u0026')
 DIST=ROOT/'dist'; APPS=ROOT/'applications'
-DIST.mkdir(parents=True,exist_ok=True)
 valid=set('abcdefghijklmnopqrstuvwxyz0123456789-')
 # Root is an entry point to the application system, not a second CV.
 published=[]
@@ -49,37 +48,49 @@ for file in sorted(APPS.glob('*.json')):
     for item in fit:
         if not isinstance(item.get('world'),int) or item['world'] not in range(4):sys.exit('Ungültige Kompetenzwelt: '+file.name)
         if not isinstance(item.get('requirement'),str) or not isinstance(item.get('evidence'),str):sys.exit('Ungültiger Job Fit')
-    # Application-level showcases are obsolete and intentionally ignored.
-    # Project assignment and content come only from case-studies/*.json.
+    # Projects are maintained centrally in case-studies/*.json.
+    # Each project can target several application slugs. Legacy per-application
+    # assignments remain supported during migration, without double rendering.
+    assignments=data.get('showcases',[])
+    if not isinstance(assignments,list):sys.exit('Ungültige Showcase-Zuordnungen: '+file.name)
+    legacy={}
+    for item in assignments:
+        if not isinstance(item,dict):sys.exit('Ungültige Showcase-Zuordnung: '+file.name)
+        case_id=item.get('caseStudyId')
+        if not isinstance(case_id,str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',case_id):
+            sys.exit('Ungültige Case-Study-ID: '+file.name)
+        legacy[case_id]=item
     public_cases=[]
     allowed=('id','title','company','period','role','module','challenge',
-             'responsibility','actions','results','evidence','tags','visual')
+             'responsibility','actions','results','evidence','tags','visual','htmlBlock')
     for source in sorted((ROOT/'case-studies').glob('*.json')):
         case=json.loads(source.read_text(encoding='utf-8'))
         case_id=case.get('id')
         if not isinstance(case_id,str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',case_id) or source.stem!=case_id:
             sys.exit('Ungültiger Projekt-Slug: '+str(source))
-        # Existing legacy projects without central assignments are inactive.
-        # A new project can be created in Studio without migration.
-        if 'applicationSlugs' not in case:
-            continue
-        targets=case['applicationSlugs']
-        if not isinstance(targets,list) or len(set(map(str,targets)))!=len(targets) or any(
-                not isinstance(x,str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',x) for x in targets):
+        targets=case.get('applicationSlugs',[])
+        if not isinstance(targets,list) or any(not isinstance(x,str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',x) for x in targets):
             sys.exit('Ungültige Bewerbungs-Slugs in Projekt: '+case_id)
-        if slug not in targets or case.get('visibility')!='reviewed':continue
+        assigned=(slug in targets) if 'applicationSlugs' in case else (case_id in legacy)
+        if not assigned:continue
+        if case.get('visibility')!='reviewed':
+            # Draft projects never appear publicly. Legacy unpublished assignments
+            # are also safely ignored instead of breaking every deployment.
+            continue
         if case.get('module') not in ('growth','brand','international','product','leadership'):
             sys.exit('Unbekanntes Projektmodul: '+case_id)
-        req=case.get('requirementIndex',0)
-        if type(req) is not int or req not in range(3):
-            sys.exit('Ungültiger Job-Fit-Bezug in Projekt: '+case_id)
-        order=case.get('order',100)
-        if type(order) is not int or order<0:
-            sys.exit('Ungültige Sortierung in Projekt: '+case_id)
+        old={} if slug in targets else legacy.get(case_id,{})
+        headline=old.get('headline') or case.get('headline') or case.get('title') or case_id
+        relevance=old.get('relevance') or case.get('relevance') or ''
+        req=old.get('requirementIndex',case.get('requirementIndex',0))
+        if type(req) is not int or req not in range(3):req=0
+        block=case.get('htmlBlock')
+        if block is not None:
+            if not isinstance(block,dict) or not isinstance(block.get('html'),str) or len(block['html'])>2_000_000 or block.get('position','after') not in ('before','after') or type(block.get('height',560)) is not int or not 240<=block.get('height',560)<=1200:
+                sys.exit('Ungültiger HTML-Block im Projekt: '+case_id)
         public_case={k:case[k] for k in allowed if k in case}
-        public_case.update({'headline':case.get('headline') or case.get('title') or case_id,
-                            'relevance':case.get('relevance') or '',
-                            'requirementIndex':req,'order':order})
+        public_case.update({'headline':headline,'relevance':relevance,
+                            'requirementIndex':req,'order':case.get('order',100)})
         public_cases.append(public_case)
     public_cases.sort(key=lambda x:(x.get('order') if type(x.get('order')) is int else 100,x.get('title','')))
     # Do not leak references to unpublished/internal projects via application JSON.

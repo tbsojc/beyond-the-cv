@@ -18,7 +18,7 @@ function fill(data){for(const key of keys)$(key).value=data[key]||'';$('publishe
  for(const [field,label] of [['requirement','Anforderung'],['evidence','Dein konkreter Nachweis']]){const lab=document.createElement('label');lab.textContent=label;const el=document.createElement('textarea');el.rows=2;el.dataset.fit=i;el.dataset.field=field;el.value=item[field]||'';lab.append(el);wrap.append(lab)}
  const lab=document.createElement('label');lab.textContent='Verlinkte Kompetenzwelt';const sel=document.createElement('select');sel.dataset.fit=i;sel.dataset.field='world';['Digital Growth & Commerce','Digital Products & Technology','Leadership & International Scale','Brand, Marketing & Transformation'].forEach((name,n)=>{const o=document.createElement('option');o.value=n;o.textContent=(n+1)+' · '+name;sel.append(o)});sel.value=item.world??i;lab.append(sel);wrap.append(lab);fits.append(wrap);
  }$('slug').readOnly=!isNew;updateUrl()}
-function read(){const d=(!isNew && selected && files[selected]) ? JSON.parse(JSON.stringify(files[selected].data)) : {};for(const key of keys)d[key]=$(key).value.trim();d.published=$('published').checked;delete d.showcases;delete d.publicShowcases;d.jobFit=[];for(let i=0;i<3;i++){const q=f=>document.querySelector('[data-fit="'+i+'"][data-field="'+f+'"]');d.jobFit.push({requirement:q('requirement').value.trim(),evidence:q('evidence').value.trim(),world:Number(q('world').value)})}return d}
+function read(){const d=(!isNew && selected && files[selected]) ? JSON.parse(JSON.stringify(files[selected].data)) : {};for(const key of keys)d[key]=$(key).value.trim();d.published=$('published').checked;d.jobFit=[];for(let i=0;i<3;i++){const q=f=>document.querySelector('[data-fit="'+i+'"][data-field="'+f+'"]');d.jobFit.push({requirement:q('requirement').value.trim(),evidence:q('evidence').value.trim(),world:Number(q('world').value)})}return d}
 function updateUrl(){$('urlPreview').textContent='/b/'+$('slug').value+'/'}$('slug').addEventListener('input',updateUrl);
 function refreshList(){const select=$('appSelect');select.replaceChildren();for(const slug of Object.keys(files).sort()){const opt=document.createElement('option');opt.value=slug;opt.textContent=slug;select.append(opt)}if(selected&&files[selected])select.value=selected}
 $('appSelect').addEventListener('change',()=>{selected=$('appSelect').value;isNew=false;fill(files[selected].data)});
@@ -131,7 +131,7 @@ let projectFiles={},projectSelected=null,projectIsNew=false;
 const projectFields={id:'projectId',title:'projectTitle',company:'projectCompany',period:'projectPeriod',role:'projectRole',module:'projectModule',visibility:'projectVisibility',headline:'projectHeadline',relevance:'projectRelevance',challenge:'projectChallenge',responsibility:'projectResponsibility',actions:'projectActions',results:'projectResults',evidence:'projectEvidence',visual:'projectVisual',requirementIndex:'projectRequirementIndex',order:'projectOrder'};
 const projectPath=id=>'case-studies/'+id+'.json';
 function projectList(){const sel=$('projectSelect');sel.replaceChildren();for(const id of Object.keys(projectFiles).sort()){const item=projectFiles[id].data;const opt=document.createElement('option');opt.value=id;opt.textContent=(item.title||id)+' · '+id;sel.append(opt)}if(projectSelected)sel.value=projectSelected;}
-function projectFill(data){for(const [key,id] of Object.entries(projectFields)){$(id).value=(key==='visual' && typeof data[key]==='object')?'':(data[key]??(key==='order'?100:''))} $('projectTags').value=(data.tags||[]).join(', ');$('projectApplicationSlugs').value=(data.applicationSlugs||[]).join(', ');$('projectId').readOnly=!projectIsNew;$('projectEditor').hidden=false;renderProjectSlugChoices();}
+function projectFill(data){for(const [key,id] of Object.entries(projectFields)){$(id).value=(key==='visual' && typeof data[key]==='object')?'':(data[key]??(key==='order'?100:''))} $('projectHtml').value=data.htmlBlock?.html||'';$('projectHtmlPosition').value=data.htmlBlock?.position==='before'?'before':'after';$('projectHtmlHeight').value=data.htmlBlock?.height||560;$('projectHtmlPreview').hidden=true;$('projectHtmlPreview').removeAttribute('srcdoc');$('projectTags').value=(data.tags||[]).join(', ');$('projectApplicationSlugs').value=(data.applicationSlugs||[]).join(', ');$('projectId').readOnly=!projectIsNew;$('projectEditor').hidden=false;renderProjectSlugChoices();}
 function renderProjectSlugChoices(){const root=$('projectSlugChoices');root.replaceChildren();const slugs=new Set($('projectApplicationSlugs').value.split(/[\s,;]+/).filter(Boolean));for(const slug of Object.keys(files).sort()){const label=document.createElement('label');label.className='slug-choice';const cb=document.createElement('input');cb.type='checkbox';cb.value=slug;cb.checked=slugs.has(slug);cb.onchange=()=>{const set=new Set($('projectApplicationSlugs').value.split(/[\s,;]+/).filter(Boolean));if(cb.checked)set.add(slug);else set.delete(slug);$('projectApplicationSlugs').value=[...set].join(', ')};label.append(cb,document.createTextNode(' '+slug));root.append(label)}}
 function projectSelect(id){projectSelected=id;projectIsNew=false;projectFill(projectFiles[id].data);projectList()}
 $('projectSelect').addEventListener('change',()=>{if(projectFiles[$('projectSelect').value])projectSelect($('projectSelect').value)});
@@ -141,7 +141,7 @@ async function loadProjects(){
  try{projectFiles={};let entries=[];try{entries=await api('contents/case-studies?ref='+encodeURIComponent(auth.branch))}catch(err){if(!/HTTP 404/.test(err.message))throw err}
   for(const entry of entries.filter(x=>x.type==='file'&&x.name.endsWith('.json')&&!x.name.startsWith('_'))){const file=await api('contents/'+entry.path+'?ref='+encodeURIComponent(auth.branch));const data=JSON.parse(decode(file.content));projectFiles[data.id]={sha:file.sha,data}}
   if(Object.keys(projectFiles).length)projectSelect(Object.keys(projectFiles).sort()[0]);else $('projectNew').click();
-  $('projectLibraryStatus').textContent=Object.keys(projectFiles).length+' Projekte geladen. Alle Projektinhalte und Zuordnungen stammen ausschließlich aus case-studies/*.json.';
+  $('projectLibraryStatus').textContent=Object.keys(projectFiles).length+' Projekte geladen. Änderungen werden in case-studies/*.json gespeichert.';
  }catch(err){$('projectLibraryStatus').textContent='Projektbibliothek konnte nicht geladen werden: '+err.message;console.error(err)}
 }
 function projectRead(){const old=(!projectIsNew&&projectSelected&&projectFiles[projectSelected])?structuredClone(projectFiles[projectSelected].data):{};
@@ -149,8 +149,11 @@ function projectRead(){const old=(!projectIsNew&&projectSelected&&projectFiles[p
  old.order=Number(old.order);old.requirementIndex=Number(old.requirementIndex);
  old.tags=$('projectTags').value.split(',').map(x=>x.trim()).filter(Boolean);
  old.applicationSlugs=[...new Set($('projectApplicationSlugs').value.split(/[\s,;]+/).map(x=>x.trim()).filter(Boolean))];
+ const html=$('projectHtml').value.trim();if(html){old.htmlBlock={html,position:$('projectHtmlPosition').value==='before'?'before':'after',height:Math.max(240,Math.min(1200,Number($('projectHtmlHeight').value)||560))}}else{delete old.htmlBlock}
  old.schemaVersion=1;return old;
 }
+$('projectHtmlPreviewButton').addEventListener('click',()=>{const frame=$('projectHtmlPreview');const html=$('projectHtml').value.trim();frame.hidden=!html;if(html){frame.style.height=(Math.max(240,Math.min(1200,Number($('projectHtmlHeight').value)||560)))+'px';frame.srcdoc=html}else frame.removeAttribute('srcdoc')});
+$('projectHtmlClear').addEventListener('click',()=>{if(!confirm('HTML-Visualisierung aus dem Editor entfernen? Erst beim Speichern wird die Änderung veröffentlicht.'))return;$('projectHtml').value='';$('projectHtmlPreview').hidden=true;$('projectHtmlPreview').removeAttribute('srcdoc')});
 $('projectSave').addEventListener('click',async()=>{
  if(!auth){alert('Bitte zuerst GitHub verbinden.');return}
  const d=projectRead();if(!cleanSlug(d.id)){alert('Projekt-Slug: nur Kleinbuchstaben, Zahlen und Bindestriche.');return}
@@ -174,6 +177,6 @@ $('projectDelete').addEventListener('click',async()=>{
  const btn=$('projectDelete');btn.disabled=true;
  try{await api('contents/'+projectPath(id),{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Studio: delete project '+id,sha:projectFiles[id].sha,branch:auth.branch})});delete projectFiles[id];projectSelected=null;
   if(Object.keys(projectFiles).length)projectSelect(Object.keys(projectFiles).sort()[0]);else{$('projectSelect').replaceChildren();$('projectNew').click()}
-  $('projectStatus').textContent='Projekt gelöscht. Seine Zuordnungen sind damit auf allen Bewerbungen entfernt.';
+  $('projectStatus').textContent='Projekt gelöscht. Bitte vorhandene alte Showcase-Zuordnungen in Bewerbungen bei Bedarf bereinigen.';
  }catch(err){$('projectStatus').textContent='Löschen fehlgeschlagen: '+err.message}finally{btn.disabled=false}
 });

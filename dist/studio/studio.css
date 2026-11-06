@@ -35,3 +35,5 @@
 #siteFields:empty:after{content:"Keine Felder geladen – Verbindung prüfen.";color:#abc5d7}
 
 .tech-editor-group{margin:16px 0;padding:20px;border:1px solid #365b70;border-radius:14px;background:#091e30}.tech-editor-group .row{justify-content:flex-end;gap:8px}.tech-editor-group .row strong{margin-right:auto}.tech-editor-group textarea{min-height:110px;resize:vertical}
+
+.project-html-panel{margin:26px 0;padding:22px;border:1px solid #32617b;border-radius:14px;background:#081d2d}.project-html-panel h3{margin:0 0 8px}.project-html-panel textarea{font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;min-height:220px;resize:vertical}.project-html-panel iframe{display:block;width:100%;border:1px solid #38627a;border-radius:10px;background:#fff;margin-top:15px}.project-html-panel iframe[hidden]{display:none}
