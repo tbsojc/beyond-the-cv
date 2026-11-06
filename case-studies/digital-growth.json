@@ -15,5 +15,13 @@
   ],
   "visual": "Test 6",
   "visibility": "reviewed",
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "headline": "überschrift test",
+  "relevance": "relevanz test",
+  "requirementIndex": 0,
+  "order": 100,
+  "applicationSlugs": [
+    "qrailing-product-marketing",
+    "testbewerbung"
+  ]
 }
