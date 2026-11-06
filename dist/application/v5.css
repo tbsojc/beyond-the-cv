@@ -59,3 +59,18 @@
 .hero-headline .hero-promise .hero-accent{color:#54d7f5;font-weight:750;letter-spacing:inherit}
 @media(max-width:720px){.arrival .hero-headline{font-size:clamp(35px,8vw,52px)}.hero-headline .hero-promise{font-size:clamp(23px,5.6vw,32px)}.hero-headline .hero-statement{max-width:100%}}
 @media(max-width:420px){.arrival .hero-headline{font-size:clamp(32px,8vw,39px)}.hero-headline .hero-promise{font-size:clamp(22px,5.7vw,27px)}}
+
+/* V6.5: Präzise typografische Hierarchie nach der neuen Referenz.
+   Unveränderte Schriftfamilie, vorhandene Farbwerte und unveränderter Hintergrund. */
+.arrival .hero-headline{font-size:clamp(40px,5vw,76px);line-height:1.1;letter-spacing:-.043em;max-width:1100px;margin-bottom:clamp(24px,4vh,40px)}
+.hero-headline .hero-greeting-inline{font-size:clamp(26px,2.65vw,43px);font-weight:750;line-height:1.15;letter-spacing:-.032em;margin-bottom:clamp(14px,2.3vh,24px);color:#fff}
+.hero-headline .hero-statement{font-size:1em;font-weight:750;line-height:1.08;letter-spacing:-.05em;max-width:920px;margin-bottom:clamp(18px,3.3vh,30px);color:#fff}
+.hero-headline .hero-statement-emphasis{display:block;font-size:1.28em;line-height:1.05;letter-spacing:-.055em}
+.hero-headline .hero-statement::after{margin-top:clamp(13px,2.2vh,22px);width:52px;height:2px}
+.hero-headline .hero-promise{font-size:clamp(25px,3.05vw,46px);line-height:1.3;font-weight:400;letter-spacing:-.028em;max-width:1030px;color:#a8d7ec}
+.hero-headline .hero-promise-intro{display:block;font-weight:750;color:#fff;margin-bottom:.23em}
+.hero-headline .hero-promise-detail{display:block;font-weight:400;color:#a8d7ec}
+.hero-headline .hero-promise .hero-accent{font-weight:750;color:#54d7f5}
+.hero-headline .hero-promise .hero-action{font-weight:750;color:#fff}
+@media(max-width:720px){.arrival .hero-headline{font-size:clamp(35px,7.5vw,54px)}.hero-headline .hero-greeting-inline{font-size:clamp(24px,5.5vw,36px)}.hero-headline .hero-promise{font-size:clamp(23px,5.3vw,34px)}.hero-headline .hero-statement-emphasis{font-size:1.18em}}
+@media(max-width:420px){.arrival .hero-headline{font-size:clamp(31px,7.5vw,38px)}.hero-headline .hero-promise{font-size:clamp(22px,5.5vw,28px)}}
