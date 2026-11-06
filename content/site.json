@@ -410,6 +410,44 @@
           }
         ]
       }
+    ],
+    "focusToolGroups": [
+      {
+        "title": "COMMERCE & CRM",
+        "tools": [
+          "Magento · Sana · PIM"
+        ]
+      },
+      {
+        "title": "MARKETING & ANALYTICS",
+        "tools": [
+          "GA4 · GTM · Google Ads · Google Data Studio"
+        ]
+      },
+      {
+        "title": "WEB & DEVELOPMENT",
+        "tools": [
+          "Strapi · TYPO3 · WordPress · Webflow · HTML · CSS · JavaScript · GitHub"
+        ]
+      },
+      {
+        "title": "AI & SEARCH",
+        "tools": [
+          "ChatGPT · GEO · Google Search Console · Sistrix"
+        ]
+      },
+      {
+        "title": "PROJECTS & COLLABORATION",
+        "tools": [
+          "Jira · Scrum · SharePoint"
+        ]
+      },
+      {
+        "title": "UX/UI & DESIGN",
+        "tools": [
+          "Figma · Adobe Creative Cloud · Canva"
+        ]
+      }
     ]
   },
   "worlds": [
