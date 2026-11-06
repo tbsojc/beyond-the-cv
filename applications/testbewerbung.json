@@ -1,0 +1,37 @@
+{
+  "slug": "testbewerbung",
+  "company": "Testunternehmen",
+  "role": "Testposition",
+  "contact": "Benedict himself",
+  "greeting": "Guten Tag Benedict,",
+  "personalNote": "das ist nur für dich zum testen",
+  "motivation": "Du bist hochmotiviert",
+  "letter": "**Bewerbung als Teamlead Digital Retail (m/w/d)**\n\nHallo Ilka,\n\n„Neue Wege entstehen dadurch, dass man sie geht.“ – Dieser Gedanke prägt meinen beruflichen Anspruch, digitale Geschäftspotenziale zu erkennen, gemeinsam mit einem starken Team umzusetzen und messbare Ergebnisse zu erzielen. Die Position als Teamlead Digital Retail bei Melitta spricht mich besonders an, weil sie genau die Themen verbindet, die meinen beruflichen Weg bestimmen: E-Commerce, wirtschaftliches Wachstum, datenbasierte Entscheidungen und die Führung digitaler Teams.\n\nAktuell bin ich als Digital Sales Manager bei Q-railing tätig. Innerhalb von dreieinhalb Jahren habe ich mich dort vom Digital Marketing Specialist über den Teamlead Digital in meine heutige Position weiterentwickelt. Dabei habe ich ein Digital-Team mit bis zu neun Mitarbeitenden aufgebaut und fachlich sowie disziplinarisch geführt. Gemeinsam haben wir internationale E-Commerce- und Digitalisierungsprojekte vorangetrieben und einen wesentlichen Beitrag dazu geleistet, den Online-Umsatz innerhalb von drei Jahren von unter fünf auf über zehn Millionen Euro zu steigern.\n\nZu meiner Erfahrung gehören die Weiterentwicklung eines internationalen Headless-B2B-Webshops, die Optimierung digitaler Customer Journeys sowie die Steuerung sechsstelliger jährlicher Werbebudgets für 13 internationale Tochtergesellschaften und drei exklusive Vertriebspartner. Dabei verbinde ich wirtschaftliche Ziele mit einem ausgeprägten Verständnis für Shop-Performance, Conversion, Nutzerbedürfnisse und effiziente Prozesse. In der Zusammenarbeit mit Vertrieb, IT, Management und externen Partnern lege ich großen Wert auf klare Prioritäten, Eigenverantwortung und eine pragmatische Umsetzung.\n\nEin Beispiel dafür ist ein 3D-Produktkonfigurator, den ich gemeinsam mit meinem Team eigenverantwortlich konzipiert und intern entwickelt habe. Die Anwendung verbindet digitale Produktberatung mit nachgelagerten Unternehmensprozessen und generiert inzwischen über 250 Leads pro Monat. Solche Projekte zeigen, wie wichtig das Zusammenspiel aus technischer Weiterentwicklung, Kundenerlebnis und messbarem Geschäftsnutzen ist.\n\nAls Head of Marketing bei Alpha Sports habe ich zuvor ein Marketingteam aufgebaut und die strategische Neupositionierung der Unternehmensgruppe verantwortet. Meine Stationen bei Dyaco Europe und Cardio Fitness ergänzen mein Profil um internationales B2B- und B2C-Marketing sowie Erfahrungen mit der Verbindung von stationärem Handel und E-Commerce. Diese Perspektiven möchte ich nutzen, um gemeinsam mit dem Digital-Retail-Team die D2C- und D2B-Shops von Melitta weiterzuentwickeln.\n\nAuch persönlich ist die Position für mich interessant: Meine Frau und ich haben ein Haus in Bösel gekauft und ziehen ins Oldenburger Münsterland. Ich möchte meine berufliche Zukunft langfristig in der Region gestalten.\n\nEin Eintritt ist zum 1. Januar 2027, nach Absprache gegebenenfalls früher, möglich. Da ich mich derzeit in einem ungekündigten Arbeitsverhältnis befinde, bitte ich um vertrauliche Behandlung meiner Bewerbung.\n\nIch freue mich auf ein persönliches Kennenlernen.\n\nViele Grüße\n\nBenedict Steinheil",
+  "published": true,
+  "jobFit": [
+    {
+      "requirement": "Neuer testnachweis",
+      "evidence": "Hab alles bei Testnachweis 1 gemacht",
+      "world": 0
+    },
+    {
+      "requirement": "Testnachweis 2",
+      "evidence": "Hab auch bei 2 alles gemacht",
+      "world": 1
+    },
+    {
+      "requirement": "Testnachweis 3",
+      "evidence": "Hab auch bei Testnachweis 3 alles gemacht",
+      "world": 2
+    }
+  ],
+  "showcases": [
+    {
+      "caseStudyId": "digital-growth",
+      "headline": "projekt 1",
+      "relevance": "relevanz für teststelle 1",
+      "requirementIndex": 0,
+      "order": 1
+    }
+  ]
+}
