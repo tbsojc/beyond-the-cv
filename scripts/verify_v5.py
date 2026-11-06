@@ -16,3 +16,9 @@ for appfile in (root/'applications').glob('*.json'):
     print(f'PASS {app["slug"]}: {len(html):,} bytes, one-page application')
 for f in ('dist/application/v5.js','dist/application/v5.css','dist/application/v5-scene.mjs','dist/assets/beyond-the-cv.pdf'):
     if not (root/f).is_file():sys.exit('Missing asset: '+f)
+
+root_page=(root/'dist/index.html').read_text()
+if 'http-equiv="refresh"' not in root_page or 'id="hub"' in root_page:sys.exit('Legacy homepage not removed')
+for asset in ('dist/studio/dashboard.js','dist/studio/studio.js','dist/studio/studio.css'):
+    if not (root/asset).is_file():sys.exit('Missing Studio asset: '+asset)
+print('PASS: application-first homepage redirect and Studio assets')
