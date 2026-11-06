@@ -49,3 +49,13 @@
 .arrival #scene{pointer-events:none}
 @media(max-width:720px){.arrival .content{padding-top:clamp(95px,16vh,140px)}.arrival .hero-headline{font-size:clamp(32px,8.3vw,54px);letter-spacing:-.035em}.hero-headline .hero-promise{font-size:.8em}.arrival .hero-kicker{font-size:11px;margin-bottom:24px}.arrival .actions{flex-wrap:wrap}}
 @media(max-width:420px){.arrival .hero-headline{font-size:clamp(29px,8.1vw,38px)}.hero-headline .hero-promise{font-size:.8em}}
+
+/* V6.4 – Nur Schriftproportionen und -hierarchie; keine neuen Farbwerte. */
+.arrival .hero-headline{font-size:clamp(35px,4.05vw,62px);line-height:1.12;letter-spacing:-.035em;text-wrap:initial;max-width:1040px}
+.hero-headline .hero-greeting-inline{font-size:clamp(19px,1.85vw,28px);font-weight:400;letter-spacing:-.012em;line-height:1.4;margin-bottom:clamp(8px,1.8vh,16px);color:#eaf3ff}
+.hero-headline .hero-statement{font-size:1em;font-weight:750;letter-spacing:-.04em;line-height:1.08;max-width:820px;margin-bottom:clamp(26px,4.4vh,42px);position:relative}
+.hero-headline .hero-statement::after{content:"";display:block;width:52px;height:2px;background:#54d7f5;margin-top:clamp(14px,2vh,22px)}
+.hero-headline .hero-promise{display:block;font-size:clamp(24px,2.7vw,39px);font-weight:400;line-height:1.34;letter-spacing:-.022em;color:#a8d7ec;max-width:1030px}
+.hero-headline .hero-promise .hero-accent{color:#54d7f5;font-weight:750;letter-spacing:inherit}
+@media(max-width:720px){.arrival .hero-headline{font-size:clamp(35px,8vw,52px)}.hero-headline .hero-promise{font-size:clamp(23px,5.6vw,32px)}.hero-headline .hero-statement{max-width:100%}}
+@media(max-width:420px){.arrival .hero-headline{font-size:clamp(32px,8vw,39px)}.hero-headline .hero-promise{font-size:clamp(22px,5.7vw,27px)}}
