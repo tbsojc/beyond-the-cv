@@ -1,4 +1,3 @@
-
 name: Build and deploy Beyond the CV
 
 on:
@@ -6,37 +5,78 @@ on:
     branches: [main]
     paths:
       - 'applications/**'
+      - 'case-studies/**'
       - 'content/**'
       - 'scripts/**'
       - 'dist/**'
+      - 'netlify.toml'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: beyond-cv-production
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Verify V5 source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in scripts/build.py scripts/application_v5.html scripts/verify_v5.py dist/application/v5.js dist/application/v5.css dist/application/v5-scene.mjs content/site.json; do
+            if [[ ! -s "$f" ]]; then
+              echo "::error file=$f::Required V5 file is missing or empty"
+              exit 1
+            fi
+          done
 
       - name: Build personalized pages
         run: python scripts/build.py
 
-      - name: Verify local assets and scripts
+      - name: Verify generated website
+        shell: bash
         run: |
+          set -euo pipefail
           python -m compileall -q scripts
-          find dist/assets/js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+          find dist -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
+          node --check dist/application/v5-scene.mjs
+          python scripts/verify_v5.py
+          test -s dist/index.html
+          test -s dist/b/qrailing-product-marketing/index.html
+          test -s dist/assets/beyond-the-cv.pdf
+          echo "Build and V5 verification succeeded."
 
-      - name: Deploy to Netlify
+      - name: Check Netlify credentials
+        shell: bash
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
-          test -n "$NETLIFY_AUTH_TOKEN" && test -n "$NETLIFY_SITE_ID"
-          npx --yes netlify-cli@23 deploy --dir=dist --prod --no-build --message="Content Studio $GITHUB_SHA"
+          set -euo pipefail
+          if [[ -z "$NETLIFY_AUTH_TOKEN" || -z "$NETLIFY_SITE_ID" ]]; then
+            echo '::error::NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID secret is missing'
+            exit 1
+          fi
+
+      - name: Deploy to Netlify
+        shell: bash
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          set -euo pipefail
+          npx --yes netlify-cli@23 deploy --dir=dist --prod --no-build --message="Beyond the CV V5 ${GITHUB_SHA}"
