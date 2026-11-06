@@ -1,9 +1,21 @@
 #!/usr/bin/env python3
 """Build static personalized pages from reviewed JSON. Standard library only."""
-import json, pathlib, re, shutil, sys
+import json, pathlib, re, shutil, sys, base64
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE=(ROOT/'scripts/template.html').read_text(encoding='utf-8')
 SITE=json.loads((ROOT/'content/site.json').read_text(encoding='utf-8'))
+APPLICATION_V5=(ROOT/'scripts/application_v5.html').read_text(encoding='utf-8')
+# The legacy site JSON embeds large binary data URIs. Keep them out of every application page.
+V5_SITE={'site':SITE.get('site',{}),'pdf':''}
+if isinstance(SITE.get('pdf'),str) and SITE['pdf'].startswith('data:application/pdf;base64,'):
+    pdf_file=ROOT/'dist/assets/beyond-the-cv.pdf'
+    pdf_file.parent.mkdir(parents=True,exist_ok=True)
+    pdf_file.write_bytes(base64.b64decode(SITE['pdf'].split(',',1)[1],validate=True))
+    V5_SITE['pdf']='/assets/beyond-the-cv.pdf'
+elif isinstance(SITE.get('pdf'),str):
+    V5_SITE['pdf']=SITE['pdf']
+def safe_json(value):
+    return json.dumps(value,ensure_ascii=False,separators=(',',':')).replace('<',r'\u003c').replace('>',r'\u003e').replace('&',r'\u0026')
 SITE_PATTERN=r'(<script id="data" type="application/json">).*?(</script>)'
 assert len(re.findall(SITE_PATTERN,TEMPLATE,flags=re.S))==1
 def embed_site(page):
@@ -89,7 +101,7 @@ for file in sorted(APPS.glob('*.json')):
     replacement=lambda m:m.group(1)+'window.__applicationData='+payload+';'+m.group(2)
     page=re.sub(PATTERN,replacement,embed_site(TEMPLATE),count=1,flags=re.S)
     folder=DIST/'b'/slug;folder.mkdir(parents=True,exist_ok=True)
-    if public_cases:
-        page=page.replace('</body>', '<script defer src="/application/showcases.js"></script></body>',1)
+    # V5: one integrated scroll experience; the homepage and Content Studio remain unchanged.
+    page=APPLICATION_V5.replace('__APPLICATION_JSON__',safe_json(data)).replace('__SITE_JSON__',safe_json(V5_SITE))
     (folder/'index.html').write_text(page,encoding='utf-8')
     print('Built /b/'+slug+'/')
