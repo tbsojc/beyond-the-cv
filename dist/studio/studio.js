@@ -18,7 +18,7 @@ function fill(data){for(const key of keys)$(key).value=data[key]||'';$('publishe
  for(const [field,label] of [['requirement','Anforderung'],['evidence','Dein konkreter Nachweis']]){const lab=document.createElement('label');lab.textContent=label;const el=document.createElement('textarea');el.rows=2;el.dataset.fit=i;el.dataset.field=field;el.value=item[field]||'';lab.append(el);wrap.append(lab)}
  const lab=document.createElement('label');lab.textContent='Verlinkte Kompetenzwelt';const sel=document.createElement('select');sel.dataset.fit=i;sel.dataset.field='world';['Digital Growth & Commerce','Digital Products & Technology','Leadership & International Scale','Brand, Marketing & Transformation'].forEach((name,n)=>{const o=document.createElement('option');o.value=n;o.textContent=(n+1)+' · '+name;sel.append(o)});sel.value=item.world??i;lab.append(sel);wrap.append(lab);fits.append(wrap);
  }$('slug').readOnly=!isNew;updateUrl()}
-function read(){const d=(!isNew && selected && files[selected]) ? JSON.parse(JSON.stringify(files[selected].data)) : {};for(const key of keys)d[key]=$(key).value.trim();d.published=$('published').checked;d.jobFit=[];for(let i=0;i<3;i++){const q=f=>document.querySelector('[data-fit="'+i+'"][data-field="'+f+'"]');d.jobFit.push({requirement:q('requirement').value.trim(),evidence:q('evidence').value.trim(),world:Number(q('world').value)})}return d}
+function read(){const d=(!isNew && selected && files[selected]) ? JSON.parse(JSON.stringify(files[selected].data)) : {};for(const key of keys)d[key]=$(key).value.trim();d.published=$('published').checked;delete d.showcases;delete d.publicShowcases;d.jobFit=[];for(let i=0;i<3;i++){const q=f=>document.querySelector('[data-fit="'+i+'"][data-field="'+f+'"]');d.jobFit.push({requirement:q('requirement').value.trim(),evidence:q('evidence').value.trim(),world:Number(q('world').value)})}return d}
 function updateUrl(){$('urlPreview').textContent='/b/'+$('slug').value+'/'}$('slug').addEventListener('input',updateUrl);
 function refreshList(){const select=$('appSelect');select.replaceChildren();for(const slug of Object.keys(files).sort()){const opt=document.createElement('option');opt.value=slug;opt.textContent=slug;select.append(opt)}if(selected&&files[selected])select.value=selected}
 $('appSelect').addEventListener('change',()=>{selected=$('appSelect').value;isNew=false;fill(files[selected].data)});
@@ -141,7 +141,7 @@ async function loadProjects(){
  try{projectFiles={};let entries=[];try{entries=await api('contents/case-studies?ref='+encodeURIComponent(auth.branch))}catch(err){if(!/HTTP 404/.test(err.message))throw err}
   for(const entry of entries.filter(x=>x.type==='file'&&x.name.endsWith('.json')&&!x.name.startsWith('_'))){const file=await api('contents/'+entry.path+'?ref='+encodeURIComponent(auth.branch));const data=JSON.parse(decode(file.content));projectFiles[data.id]={sha:file.sha,data}}
   if(Object.keys(projectFiles).length)projectSelect(Object.keys(projectFiles).sort()[0]);else $('projectNew').click();
-  $('projectLibraryStatus').textContent=Object.keys(projectFiles).length+' Projekte geladen. Änderungen werden in case-studies/*.json gespeichert.';
+  $('projectLibraryStatus').textContent=Object.keys(projectFiles).length+' Projekte geladen. Alle Projektinhalte und Zuordnungen stammen ausschließlich aus case-studies/*.json.';
  }catch(err){$('projectLibraryStatus').textContent='Projektbibliothek konnte nicht geladen werden: '+err.message;console.error(err)}
 }
 function projectRead(){const old=(!projectIsNew&&projectSelected&&projectFiles[projectSelected])?structuredClone(projectFiles[projectSelected].data):{};
@@ -174,6 +174,6 @@ $('projectDelete').addEventListener('click',async()=>{
  const btn=$('projectDelete');btn.disabled=true;
  try{await api('contents/'+projectPath(id),{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Studio: delete project '+id,sha:projectFiles[id].sha,branch:auth.branch})});delete projectFiles[id];projectSelected=null;
   if(Object.keys(projectFiles).length)projectSelect(Object.keys(projectFiles).sort()[0]);else{$('projectSelect').replaceChildren();$('projectNew').click()}
-  $('projectStatus').textContent='Projekt gelöscht. Bitte vorhandene alte Showcase-Zuordnungen in Bewerbungen bei Bedarf bereinigen.';
+  $('projectStatus').textContent='Projekt gelöscht. Seine Zuordnungen sind damit auf allen Bewerbungen entfernt.';
  }catch(err){$('projectStatus').textContent='Löschen fehlgeschlagen: '+err.message}finally{btn.disabled=false}
 });
