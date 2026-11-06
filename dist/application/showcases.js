@@ -121,10 +121,19 @@ html.bc-final-active,html.bc-final-active body{overflow:hidden!important}
 @media(prefers-reduced-motion:reduce){#bc33.open{animation:none}#bc33 *,#bc33-launch{animation:none!important;transition:none!important}}
 @media(prefers-reduced-motion:reduce){html.bc42-page{scroll-behavior:auto}}
 `;
+    // Dialog top layer: independent of the 3D portal's stacking contexts.
+    css.textContent += `
+#bc33:not([open]){display:none!important}
+#bc33[open]{position:fixed!important;inset:0!important;margin:0!important;padding:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;border:0!important;box-sizing:border-box!important;overflow:auto!important;z-index:2147483647!important;background:#030915!important;color:#f0f8fc!important}
+#bc33[open].open{display:flex!important;flex-direction:column!important}
+#bc33::backdrop{background:rgba(0,0,0,.88)}
+#bc33 .bc-glow{position:absolute!important}
+@media(max-height:450px){#bc33 .bc-stage{overflow:auto!important;min-height:260px!important}#bc33 .bc-top{min-height:55px!important}#bc33 .bc-steps{min-height:50px!important}}
+`;
     document.head.append(css);
     const el = (tag, cls, value) => { const n = document.createElement(tag); if(cls)n.className=cls; if(value!==undefined)n.textContent=String(value); return n; };
     const launch = el('button', '', '✦ Projekte räumlich entdecken'); launch.id='bc33-launch'; launch.type='button';
-    const root=el('section'); root.id='bc33'; root.setAttribute('role','dialog'); root.setAttribute('aria-modal','true'); root.setAttribute('aria-label','Interaktive Projekterfahrung');
+    const root=el('dialog'); root.id='bc33'; root.setAttribute('role','dialog'); root.setAttribute('aria-modal','true'); root.setAttribute('aria-label','Interaktive Projekterfahrung');
     const glow=el('div','bc-glow'); const top=el('div','bc-top'); const mark=el('div','bc-mark','BEYOND THE CV / PROJECT WORLDS');
     const close=el('button','bc-close','×');close.type='button';close.setAttribute('aria-label','Projekterfahrung schließen');const guideControls=el('div','bc-guide-controls');const guideStart=el('button','bc-guide-btn','▶ 80-Sekunden-Tour');const guidePause=el('button','bc-guide-btn','Pause');const guideSkip=el('button','bc-guide-btn','Freie Navigation');for(const b of [guideStart,guidePause,guideSkip])b.type='button';guideControls.append(guideStart,guidePause,guideSkip);top.append(mark,guideControls,close);
     const stage=el('div','bc-stage'); const visual=el('div','bc-visual');
@@ -226,6 +235,7 @@ html.bc-final-active,html.bc-final-active body{overflow:hidden!important}
     document.addEventListener('visibilitychange',()=>{if(document.hidden&&tourState==='playing')pauseTour();});
     function open(){
       focusBefore=document.activeElement;
+      if (!root.open) root.showModal();
       root.classList.add('open');
       launch.setAttribute('aria-expanded','true');
       document.documentElement.classList.add('bc-final-active');
@@ -236,11 +246,13 @@ html.bc-final-active,html.bc-final-active body{overflow:hidden!important}
       stopTour();clearTimeout(transitionTimer);
       contactButton.hidden=true;
       root.classList.remove('open');
+      if (root.open) root.close();
       launch.setAttribute('aria-expanded','false');
       document.documentElement.classList.remove('bc-final-active');
       focusBefore?.focus?.({preventScroll:true});
     }
     launch.addEventListener('click',open);close.addEventListener('click',hide);
+    root.addEventListener('cancel', e => { e.preventDefault(); hide(); });
     render(0);
     // Keep the 3D iframe unloaded until the visitor opens the experience.
 
