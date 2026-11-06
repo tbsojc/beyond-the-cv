@@ -39,13 +39,24 @@ $('save').addEventListener('click',async()=>{const d=read();if(!auth){alert('Zue
 const siteLabels={site:'Profil & Kennzahlen',name:'Name',headline:'Headline',tagline:'Beruflicher Fokus',intro:'Einleitung',metrics:'Kennzahlen',value:'Wert',label:'Beschriftung',skills:'Kompetenzkarten',title:'Titel',subtitle:'Untertitel',icon:'Icon-ID',career:'Career Journey',company:'Unternehmen',period:'Zeitraum',description:'Beschreibung',education:'Ausbildung',degree:'Abschluss',school:'Hochschule',grade:'Note',languages:'Sprachen',language:'Sprache',level:'Niveau',volunteering:'Engagement',focusTools:'Tech-Stack',worlds:'Kompetenzwelten',eyebrow:'Bereichslabel',statement:'Kernaussage',facts:'Fakten',chapters:'Kapitel',heading:'Überschrift',body:'Beschreibung',tags:'Schlagwörter'};
 const friendly=k=>siteLabels[k]||k;
 async function loadSite(){
- try{const result=await api('contents/content/site.json?ref='+encodeURIComponent(auth.branch));siteData=JSON.parse(decode(result.content));siteSha=result.sha;$('siteWorkspace').hidden=false;renderSite();}
- catch(e){$('siteWorkspace').hidden=true;$('connectionStatus').textContent='Bewerbungen geladen, CV-Daten fehlen: '+e.message;}
+ const status=$('siteEditorStatus');if(status)status.textContent='Lade gemeinsame CV-Daten …';
+ try{const result=await api('contents/content/site.json?ref='+encodeURIComponent(auth.branch));
+  // GitHub Contents API omits base64 content for files >1 MB.
+  // Existing site.json embeds a PDF and is ~3.3 MB, so fetch its Git blob.
+  let encoded=result.content;
+  if(!encoded && result.sha){
+    const blob=await api('git/blobs/'+encodeURIComponent(result.sha));
+    if(blob.encoding!=='base64'||!blob.content)throw Error('GitHub hat keine lesbaren CV-Daten zurückgegeben.');
+    encoded=blob.content;
+  }
+  if(!encoded)throw Error('Die GitHub-Datei ist leer oder zu groß.');
+  siteData=JSON.parse(decode(encoded));siteSha=result.sha;renderSite();if(status)status.textContent='Bearbeitbar: Änderungen direkt in den Feldern vornehmen und unten speichern.';}
+ catch(e){if(status)status.textContent='CV-Daten konnten nicht geladen werden: '+e.message;$('connectionStatus').textContent='Bewerbungen geladen, CV-Daten fehlen: '+e.message;console.error(e);}
 }
 function section(){const k=$('siteSection').value;return k==='site'?siteData.site:siteData.site[k]}
 function sitePath(){const k=$('siteSection').value;return k==='site'?['site']:['site',k]}
 function atPath(path){return path.reduce((v,k)=>v[k],siteData)}
-function renderSite(){if(!siteData)return;const root=$('siteFields');root.replaceChildren();const k=$('siteSection').value;root.append(renderField(section(),sitePath(),k));}
+function renderSite(){const root=$('siteFields');root.replaceChildren();if(!siteData){$('siteEditorStatus').textContent='Bitte zuerst GitHub verbinden und CV-Daten laden.';return;}const k=$('siteSection').value;const value=section();if(value===undefined){$('siteEditorStatus').textContent='Der gewählte Bereich ist in content/site.json noch nicht vorhanden.';return;}root.append(renderField(value,sitePath(),k));$('siteEditorStatus').textContent='Änderungen in diesem Bereich werden beim Speichern für alle Bewerbungen übernommen.';}
 function element(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
 function renderField(value,path,key){
  if(Array.isArray(value)){

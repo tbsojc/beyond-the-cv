@@ -28,3 +28,8 @@
 #connection{border-color:#3a839d}
 .case-assignments{margin-top:28px;border-top:1px solid #2c4f62;padding-top:14px}
 @media(max-width:800px){.studio-layout{display:block;padding:14px}.sidebar{position:static;flex-direction:row;flex-wrap:wrap;margin-bottom:18px}.sidebar-title,.sidebar-foot{display:none}.navtab{flex:1 1 130px;text-align:center}.studio-header{padding:20px 16px;display:block}.header-actions{margin-top:16px}.app-card{display:block}.app-card .actions{margin-top:14px;justify-content:flex-start}}
+
+.jobfit-inline{margin:28px 0;padding:20px;border:1px solid #2d617a;border-radius:14px;background:#0a2335}
+.jobfit-inline h3{margin:4px 0 8px}
+#siteEditorStatus{border-left:3px solid #67d9f9;padding:8px 12px;background:#092335}
+#siteFields:empty:after{content:"Keine Felder geladen – Verbindung prüfen.";color:#abc5d7}

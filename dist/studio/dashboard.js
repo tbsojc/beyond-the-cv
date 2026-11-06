@@ -14,6 +14,7 @@
     });
     $('connection').hidden=connected || name!=='settings' && name!=='overview';
     if(name==='overview' && connected) $('connection').hidden=true;
+    if(name==='shared' && connected && typeof renderSite==='function') { try { renderSite(); } catch(error) { const status=$('siteEditorStatus'); if(status)status.textContent='Editorfehler: '+error.message; console.error(error); } }
     window.scrollTo({top:0,behavior:'instant'});
   }
   function cards() {
