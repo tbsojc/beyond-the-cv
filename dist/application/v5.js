@@ -13,10 +13,74 @@ if(!projects.length){const fallback=(site.worlds||[]).slice(0,4);fallback.forEac
 projects.forEach((p,i)=>{const card=add(root,'article','project-card reveal');card.dataset.module=p.module||'growth';add(card,'p','eyebrow',`CASE STUDY / 0${i+1} · ${p.company||''}`);add(card,'h3','',p.headline||p.title);add(card,'p','project-meta',[p.title,p.period,p.role].filter(Boolean).join(' · '));add(card,'p','project-relevance',p.relevance||'');const story=add(card,'div','story');[['Herausforderung','challenge'],['Meine Verantwortung','responsibility'],['Umsetzung','actions'],['Ergebnis','results']].forEach(([title,key])=>{if(!p[key])return;const s=add(story,'article');add(s,'h4','',title);add(s,'p','',textOf(p[key]))});if(p.evidence)add(card,'p','project-meta',`Nachweis: ${textOf(p.evidence)}`)});
 const worlds=(site.worlds||[]).slice(0,4);
 populate('work-list',worlds,(root,w,i)=>{const c=add(root,'article','tile reveal');add(c,'p','eyebrow',`KOMPETENZ / 0${i+1}`);add(c,'h3','',w.statement||w.eyebrow||`Kompetenz ${i+1}`);add(c,'p','',w.description||'');(w.facts||[]).slice(0,2).forEach(f=>add(c,'p','',textOf(f)))});
-const tools=site.focusTools||[];populate('tech-list',tools,(root,t)=>add(root,'span','',textOf(t)));
-populate('career-list',site.career,(root,c)=>{const card=add(root,'article','timeline-item reveal');add(card,'small','',textOf(c.period||c.years||c.date||''));add(card,'h3','',textOf(c.title||c.role||c.position||''));add(card,'p','',textOf(c.company||''));if(c.description||c.summary)add(card,'p','',textOf(c.description||c.summary))});
-populate('education-list',site.education,(root,v)=>add(root,'p','',textOf(v)));
-['languages','volunteering'].forEach(k=>populate('other-list',site[k],(root,v)=>add(root,'p','',textOf(v))));
+// Tech stack: grouped data first, backwards-compatible grouping of legacy flat tools.
+const defaultCategories=[
+ ['E-COMMERCE & PLATTFORMEN',['Headless Commerce','Magento','Sana','PIM','DAM','PIM / DAM']],
+ ['PERFORMANCE & ANALYTICS',['GA4','Google Tag Manager','Google Ads','Search Console']],
+ ['WEBSITES & CMS',['Strapi','TYPO3','WordPress','Webflow']],
+ ['WEB & TECHNOLOGIE',['HTML','CSS','JavaScript']],
+ ['KI & GENERATIVE SUCHE',['ChatGPT','GEO','KI-gestützte Entwicklung','ChatGPT / GEO']],
+ ['PROJEKTE & ZUSAMMENARBEIT',['Jira','Scrum','Microsoft SharePoint','SharePoint']],
+ ['UX/UI & DESIGN',['Figma','Adobe Creative Cloud']]
+];
+function legacyGroups(tools){
+ const available=(Array.isArray(tools)?tools:[]).map(textOf).filter(Boolean);
+ const remaining=new Set(available);
+ const groups=defaultCategories.map(([title,candidates])=>{
+  const items=[];
+  for(const candidate of candidates){const found=available.find(v=>v.toLocaleLowerCase('de')===candidate.toLocaleLowerCase('de')&&remaining.has(v));if(found){items.push(found);remaining.delete(found)}}
+  return {title,tools:items};
+ });
+ if(remaining.size)groups.push({title:'WEITERE TOOLS',tools:[...remaining]});
+ return groups.filter(g=>g.tools.length);
+}
+const configured=Array.isArray(site.focusToolGroups)?site.focusToolGroups:[];
+const techGroups=configured.length?configured:legacyGroups(site.focusTools);
+populate('tech-list',techGroups,(root,group)=>{
+ const tools=Array.isArray(group.tools)?group.tools:[];if(!tools.length)return;
+ const card=add(root,'section','tech-group reveal');add(card,'h3','',group.title||'Technologien');
+ const items=add(card,'p','tech-items');items.textContent=tools.map(textOf).filter(Boolean).join(' · ');
+});
+// Career descriptions support literal <li>...</li> (and common <li/> closing typo).
+// Parse as inert markup and insert text nodes only; never inject HTML into the page.
+function careerBullets(value){
+ const raw=textOf(value).trim();if(!raw)return [];
+ if(/<li(?:\s[^>]*)?\s*\/?>/i.test(raw)){
+  const normalized=raw.replace(/<li\s*\/>/gi,'</li>');
+  const doc=new DOMParser().parseFromString('<ul>'+normalized+'</ul>','text/html');
+  const entries=[...doc.querySelectorAll('li')].map(li=>li.textContent.trim()).filter(Boolean);
+  if(entries.length)return entries;
+ }
+ const lines=raw.split(/\r?\n|\s*[●•]\s*/).map(x=>x.replace(/^\s*[-–*]\s+/,'').trim()).filter(Boolean);
+ return lines.length>1?lines:[];
+}
+populate('career-list',site.career,(root,c)=>{
+ const card=add(root,'article','timeline-item reveal');
+ add(card,'small','',textOf(c.period||c.years||c.date||''));
+ add(card,'h3','',textOf(c.title||c.role||c.position||''));
+ add(card,'p','',textOf(c.company||''));
+ const desc=c.description||c.summary||'';const bullets=careerBullets(desc);
+ if(bullets.length){const list=add(card,'ul','career-bullets');bullets.forEach(item=>add(list,'li','',item))}
+ else if(desc)add(card,'p','career-description',textOf(desc));
+});
+populate('education-list',site.education,(root,v)=>{
+ const item=add(root,'article','detail-item');
+ if(typeof v==='string'){add(item,'p','',v);return}
+ add(item,'h4','',textOf(v.degree||v.title||v.name||''));
+ if(v.school||v.institution)add(item,'p','',textOf(v.school||v.institution));
+ if(v.period||v.grade)add(item,'small','',[v.period,v.grade?'Note: '+v.grade:''].filter(Boolean).join(' · '));
+});
+const other=document.getElementById('other-list');
+if(Array.isArray(site.languages))site.languages.forEach(v=>{
+ const item=add(other,'article','detail-item');
+ if(typeof v==='string')add(item,'p','',v);
+ else{add(item,'h4','',textOf(v.language||v.name||''));if(v.level)add(item,'p','',textOf(v.level))}
+});
+if(site.volunteering){
+ const heading=add(other,'h4','engagement-heading','Engagement');
+ const values=Array.isArray(site.volunteering)?site.volunteering:[site.volunteering];
+ values.forEach(v=>add(other,'p','engagement-text',textOf(v)));
+}
 const pdf=data.pdf;if(pdf&&typeof pdf==='string'){const a=document.getElementById('cv-link');a.href=pdf;a.target='_blank';a.rel='noopener noreferrer'}else{document.getElementById('cv-link').hidden=true}
 const dialog=document.getElementById('letter-dialog');document.getElementById('letter-text').textContent=app.letter||'';document.getElementById('letter-btn').addEventListener('click',()=>dialog.showModal());document.getElementById('letter-close').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
 const menu=document.getElementById('menu'),nav=document.querySelector('.topbar nav');menu.addEventListener('click',()=>{const open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open))});nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menu.setAttribute('aria-expanded','false')}));

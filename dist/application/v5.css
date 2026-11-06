@@ -9,3 +9,28 @@
 .contact-portrait img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;object-position:center 20%}
 @media(max-width:760px){#scene .brand-watermark{width:74vw;right:-24vw;opacity:.10}.contact-layout{grid-template-columns:1fr}.contact-portrait{max-width:280px;justify-self:center;width:100%}}
 @media(prefers-reduced-motion:reduce){#scene .brand-watermark{transition:none;transform:translateY(-50%)!important}}
+
+/* V6.2: personalized hero, grouped stack and structured career details */
+.hero-personalization{display:flex;flex-wrap:wrap;align-items:center;gap:8px;max-width:960px;line-height:1.5;letter-spacing:.12em}
+.hero-personalization [data-field="role"]{color:#e9f6ff}
+.hero-divider{opacity:.5}
+.tech-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.tech-group{border:1px solid #345c74;border-radius:18px;background:linear-gradient(145deg,#0e263cdd,#08192bde);padding:24px 26px;min-width:0}
+.tech-group h3{font-size:clamp(13px,1.3vw,16px);line-height:1.5;letter-spacing:.14em;color:#64d8f7;margin:0 0 12px;font-weight:800}
+.tech-group .tech-items{font-size:clamp(16px,1.6vw,19px);line-height:1.65;color:#e6f1fa;margin:0;overflow-wrap:anywhere}
+.career-bullets{margin:14px 0 0;padding-left:24px;list-style:disc}
+.career-bullets li{margin:8px 0;line-height:1.65;padding-left:3px}
+.career-bullets li::marker{color:#60d8f7}
+.detail-panel{border:1px solid #345c74;border-radius:22px;background:#0b2238d9;padding:clamp(22px,3vw,36px);min-width:0}
+.detail-panel h3{margin:0 0 20px}
+.detail-list{display:grid;gap:16px}
+.detail-item{border-top:1px solid #ffffff20;padding-top:14px}
+.detail-item:first-child{border-top:0;padding-top:0}
+.detail-item h4{font-size:17px;line-height:1.45;margin:0 0 5px;color:#f2f8ff}
+.detail-item p{margin:3px 0;color:#c5d8e8}
+.detail-item small{display:block;margin-top:8px;color:#72d7f4}
+.engagement-heading{margin:12px 0 0;color:#64d8f7}
+.engagement-text{margin:0}
+@media(max-width:760px){.tech-groups{grid-template-columns:1fr}.tech-group{padding:22px}.hero-personalization{gap:5px}}
+
+.hero-greeting{font-size:clamp(16px,1.7vw,20px);color:#a8d7ec;margin:18px 0 6px}

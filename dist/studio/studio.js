@@ -53,10 +53,45 @@ async function loadSite(){
   siteData=JSON.parse(decode(encoded));siteSha=result.sha;renderSite();if(status)status.textContent='Bearbeitbar: Änderungen direkt in den Feldern vornehmen und unten speichern.';}
  catch(e){if(status)status.textContent='CV-Daten konnten nicht geladen werden: '+e.message;$('connectionStatus').textContent='Bewerbungen geladen, CV-Daten fehlen: '+e.message;console.error(e);}
 }
+const initialTechGroups=[
+ {title:'E-COMMERCE & PLATTFORMEN',tools:['Headless Commerce','Magento','Sana','PIM','DAM']},
+ {title:'PERFORMANCE & ANALYTICS',tools:['GA4','Google Tag Manager','Google Ads','Search Console']},
+ {title:'WEBSITES & CMS',tools:['Strapi','TYPO3','WordPress','Webflow']},
+ {title:'WEB & TECHNOLOGIE',tools:['HTML','CSS','JavaScript']},
+ {title:'KI & GENERATIVE SUCHE',tools:['ChatGPT','GEO','KI-gestützte Entwicklung']},
+ {title:'PROJEKTE & ZUSAMMENARBEIT',tools:['Jira','Scrum','Microsoft SharePoint']},
+ {title:'UX/UI & DESIGN',tools:['Figma','Adobe Creative Cloud']}
+];
+function ensureTechGroups(){
+ if(Array.isArray(siteData.site.focusToolGroups))return;
+ const groups=JSON.parse(JSON.stringify(initialTechGroups));
+ const legacy=Array.isArray(siteData.site.focusTools)?siteData.site.focusTools:[];
+ const aliases={'PIM / DAM':['PIM','DAM'],'ChatGPT / GEO':['ChatGPT','GEO'],'SharePoint':['Microsoft SharePoint']};
+ const matched=new Set(groups.flatMap(g=>g.tools.map(v=>v.toLocaleLowerCase('de'))));
+ const extra=legacy.filter(v=>typeof v==='string'&&!matched.has(v.toLocaleLowerCase('de'))&&!(v in aliases));
+ if(extra.length)groups.push({title:'WEITERE TOOLS',tools:extra});
+ siteData.site.focusToolGroups=groups;
+}
+function renderTechGroups(root){
+ ensureTechGroups();const groups=siteData.site.focusToolGroups;
+ const info=element('p','hint','Gruppen und Programme werden in dieser Reihenfolge auf allen Bewerbungsseiten angezeigt. Ein Programm pro Zeile.');root.append(info);
+ const add=element('button','secondary','+ Neue Kategorie');add.type='button';add.onclick=()=>{groups.push({title:'NEUE KATEGORIE',tools:[]});renderSite()};root.append(add);
+ groups.forEach((group,index)=>{
+  const wrap=element('section','site-item tech-editor-group');
+  const bar=element('div','row');bar.append(element('strong','',`Kategorie ${index+1}`));
+  const up=element('button','secondary','↑');up.type='button';up.title='Kategorie nach oben';up.disabled=index===0;up.onclick=()=>{[groups[index-1],groups[index]]=[groups[index],groups[index-1]];renderSite()};
+  const down=element('button','secondary','↓');down.type='button';down.title='Kategorie nach unten';down.disabled=index===groups.length-1;down.onclick=()=>{[groups[index+1],groups[index]]=[groups[index],groups[index+1]];renderSite()};
+  const remove=element('button','secondary danger','Entfernen');remove.type='button';remove.onclick=()=>{if(confirm('Kategorie entfernen?')){groups.splice(index,1);renderSite()}};
+  bar.append(up,down,remove);wrap.append(bar);
+  const title=element('label','');title.append(element('span','','Kategoriename'));const titleInput=element('input','');titleInput.value=group.title||'';titleInput.oninput=()=>{group.title=titleInput.value};title.append(titleInput);wrap.append(title);
+  const tools=element('label','');tools.append(element('span','','Programme / Technologien (eine pro Zeile)'));
+  const textarea=element('textarea','');textarea.rows=Math.max(3,Math.min(12,(group.tools||[]).length+1));textarea.value=(group.tools||[]).join('\n');textarea.oninput=()=>{group.tools=textarea.value.split(/\r?\n/).map(v=>v.trim()).filter(Boolean)};tools.append(textarea);wrap.append(tools);root.append(wrap);
+ });
+}
 function section(){const k=$('siteSection').value;return k==='site'?siteData.site:siteData.site[k]}
 function sitePath(){const k=$('siteSection').value;return k==='site'?['site']:['site',k]}
 function atPath(path){return path.reduce((v,k)=>v[k],siteData)}
-function renderSite(){const root=$('siteFields');root.replaceChildren();if(!siteData){$('siteEditorStatus').textContent='Bitte zuerst GitHub verbinden und CV-Daten laden.';return;}const k=$('siteSection').value;const value=section();if(value===undefined){$('siteEditorStatus').textContent='Der gewählte Bereich ist in content/site.json noch nicht vorhanden.';return;}root.append(renderField(value,sitePath(),k));$('siteEditorStatus').textContent='Änderungen in diesem Bereich werden beim Speichern für alle Bewerbungen übernommen.';}
+function renderSite(){const root=$('siteFields');root.replaceChildren();if(!siteData){$('siteEditorStatus').textContent='Bitte zuerst GitHub verbinden und CV-Daten laden.';return;}const k=$('siteSection').value;if(k==='focusToolGroups'){renderTechGroups(root);$('siteEditorStatus').textContent='Kategorien bearbeiten und anschließend gemeinsame CV-Daten speichern.';return;}const value=section();if(value===undefined){$('siteEditorStatus').textContent='Der gewählte Bereich ist in content/site.json noch nicht vorhanden.';return;}root.append(renderField(value,sitePath(),k));$('siteEditorStatus').textContent='Änderungen in diesem Bereich werden beim Speichern für alle Bewerbungen übernommen.';}
 function element(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
 function renderField(value,path,key){
  if(Array.isArray(value)){
@@ -83,6 +118,7 @@ $('siteSave').addEventListener('click',async()=>{
  if(!auth||!siteData)return;
  if(!Array.isArray(siteData.site.worlds)||siteData.site.worlds.length!==4){alert('Es müssen genau vier Kompetenzwelten vorhanden sein.');return}
  if(!Array.isArray(siteData.site.skills)||siteData.site.skills.length!==4){alert('Es müssen genau vier Kompetenzkarten vorhanden sein.');return}
+ if(Array.isArray(siteData.site.focusToolGroups)&&siteData.site.focusToolGroups.some(g=>!g.title?.trim()||!Array.isArray(g.tools))){alert('Jede Tech-Stack-Kategorie benötigt einen Namen und eine Programmliste.');return}
  if(!confirm('Gemeinsame CV-Inhalte für ALLE Seiten speichern und Netlify-Veröffentlichung starten?'))return;
  const btn=$('siteSave');btn.disabled=true;$('siteStatus').textContent='Speichere …';
  try{const body={message:'Content Studio: update shared CV content',content:encode(JSON.stringify(siteData,null,2)+'\n'),branch:auth.branch,sha:siteSha};const result=await api('contents/content/site.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});siteSha=result.content.sha;$('siteStatus').textContent='Gespeichert. GitHub Actions baut alle Bewerbungen neu.';}

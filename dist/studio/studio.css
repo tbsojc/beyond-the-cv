@@ -33,3 +33,5 @@
 .jobfit-inline h3{margin:4px 0 8px}
 #siteEditorStatus{border-left:3px solid #67d9f9;padding:8px 12px;background:#092335}
 #siteFields:empty:after{content:"Keine Felder geladen – Verbindung prüfen.";color:#abc5d7}
+
+.tech-editor-group{margin:16px 0;padding:20px;border:1px solid #365b70;border-radius:14px;background:#091e30}.tech-editor-group .row{justify-content:flex-end;gap:8px}.tech-editor-group .row strong{margin-right:auto}.tech-editor-group textarea{min-height:110px;resize:vertical}
