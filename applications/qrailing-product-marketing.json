@@ -25,5 +25,13 @@
       "world": 3
     }
   ],
-  "showcases": []
+  "showcases": [
+    {
+      "caseStudyId": "digital-growth",
+      "requirementIndex": 0,
+      "headline": "Test 100",
+      "relevance": "hdhdhdhd",
+      "order": 1
+    }
+  ]
 }
