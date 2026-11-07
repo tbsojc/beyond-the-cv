@@ -72,17 +72,15 @@ populate('education-list',site.education,(root,v)=>{
  if(v.school||v.institution)add(item,'p','',textOf(v.school||v.institution));
  if(v.period||v.grade)add(item,'small','',[v.period,v.grade?'Note: '+v.grade:''].filter(Boolean).join(' · '));
 });
-const other=document.getElementById('other-list');
-if(Array.isArray(site.languages))site.languages.forEach(v=>{
- const item=add(other,'article','detail-item');
- if(typeof v==='string')add(item,'p','',v);
- else{add(item,'h4','',textOf(v.language||v.name||''));if(v.level)add(item,'p','',textOf(v.level))}
-});
-if(site.volunteering){
- const heading=add(other,'h4','engagement-heading','Engagement');
- const values=Array.isArray(site.volunteering)?site.volunteering:[site.volunteering];
- values.forEach(v=>add(other,'p','engagement-text',textOf(v)));
-}
+const languages=document.getElementById('languages-list'),engagement=document.getElementById('engagement-list');
+if(Array.isArray(site.languages))site.languages.forEach(v=>{const item=add(languages,'article','detail-item');if(typeof v==='string')add(item,'p','',v);else{add(item,'h4','',textOf(v.language||v.name||''));if(v.level)add(item,'p','',textOf(v.level))}});
+if(site.volunteering){const values=Array.isArray(site.volunteering)?site.volunteering:[site.volunteering];values.forEach(v=>add(engagement,'p','engagement-text',textOf(v)))}
+const research=document.getElementById('research-list'),entries=Array.isArray(site.research)?site.research:[];
+entries.forEach(entry=>{if(!entry||!['topic','strategicQuestion','keyInsight'].every(k=>typeof entry[k]==='string'&&entry[k].trim()))return;const article=add(research,'article','research-entry');add(article,'p','research-label','Thema');add(article,'h4','',entry.topic);const list=add(article,'dl','research-facts');for(const [key,label] of [['strategicQuestion','Strategische Fragestellung'],['keyInsight','Kernerkenntnis']]){add(list,'dt','',label);add(list,'dd','',entry[key])}});
+if(!research.children.length)add(research,'p','profile-empty','Noch keine wissenschaftlichen Arbeiten oder Fachvorträge hinterlegt.');
+for(const [id,message] of [['tech-list','Noch keine Tools hinterlegt.'],['career-list','Noch keine Karrierestationen hinterlegt.'],['education-list','Noch keine Ausbildung hinterlegt.'],['languages-list','Noch keine Sprachen hinterlegt.'],['engagement-list','Noch kein soziales Engagement hinterlegt.']]){const target=document.getElementById(id);if(target&&!target.children.length)add(target,'p','profile-empty',message)}
+// All accordion content is immediately readable when a native details panel opens.
+document.querySelectorAll('.profile-accordion .reveal').forEach(el=>el.classList.remove('reveal'));
 const pdf=data.pdf;if(pdf&&typeof pdf==='string'){const a=document.getElementById('cv-link');a.href=pdf;a.target='_blank';a.rel='noopener noreferrer'}else{document.getElementById('cv-link').hidden=true}
 const dialog=document.getElementById('letter-dialog');document.getElementById('letter-text').textContent=app.letter||'';document.getElementById('letter-btn').addEventListener('click',()=>dialog.showModal());document.getElementById('letter-close').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
 const menu=document.getElementById('menu'),nav=document.querySelector('.topbar nav');menu.addEventListener('click',()=>{const open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open))});nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menu.setAttribute('aria-expanded','false')}));

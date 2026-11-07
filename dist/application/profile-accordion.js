@@ -1,0 +1,6 @@
+(()=>{'use strict';const root=document.querySelector('.profile-accordion');if(!root)return;const items=[...root.querySelectorAll('.profile-item')];
+// Native details/summary supports pointer, Enter and Space even without JavaScript.
+items.forEach(item=>item.addEventListener('toggle',()=>{if(!item.open)return;items.forEach(other=>{if(other!==item)other.open=false})}));
+function revealHash(scroll=false){let id;try{id=decodeURIComponent(location.hash.slice(1))}catch{return}const target=document.getElementById(id),item=target?.closest('.profile-item');if(!item)return;items.forEach(other=>{other.open=other===item});if(scroll)requestAnimationFrame(()=>target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}))}
+window.addEventListener('hashchange',()=>revealHash(true));window.addEventListener('popstate',()=>revealHash(true));document.addEventListener('click',event=>{const a=event.target.closest('a[href^="#"]');if(!a||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;let id;try{id=decodeURIComponent(a.getAttribute('href').slice(1))}catch{return}const target=document.getElementById(id),item=target?.closest('.profile-item');if(item){items.forEach(other=>{other.open=other===item});if(location.hash===a.getAttribute('href'))revealHash(true)}});revealHash(true);
+})();

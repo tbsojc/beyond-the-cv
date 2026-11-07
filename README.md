@@ -1,4 +1,4 @@
-# Beyond the CV 10.1 – Full Content Studio
+# Beyond the CV – Arrival & Profil-Akkordeon
 
 ## Was ist neu?
 Neben personalisierten Bewerbungen lassen sich jetzt im Content Studio unter `/studio/` die **gemeinsamen CV-Inhalte** bearbeiten: Profil, Kennzahlen, Kompetenzkarten, alle vier Kompetenzwelten mit Fakten und Kapiteln, Tech-Stack, Career Journey, Ausbildung, Sprachen und Engagement. Listen können ergänzt oder gekürzt werden. Das Erscheinungsbild und die 3D-Logik bleiben bestehen.
@@ -34,3 +34,20 @@ Alle über `scripts/application_v5.html` erzeugten Bewerbungen beginnen mit dem 
 - „Persönliche Nachricht lesen“ und „Einstieg überspringen“ führen direkt zur Ansprache. Direktlinks bleiben nutzbar. Reduzierte Bewegung wird berücksichtigt.
 - Build: `python scripts/build.py`; Prüfung: `python scripts/verify_v5.py`.
 - Für GitHub sind die Dateien im Repository-Hauptverzeichnis maßgeblich. Verschachtelte Versionsordner sind vorhandene historische Kopien und werden vom Deploy-Workflow nicht verwendet.
+
+## Kompaktes Profil-Akkordeon
+Ab Tech Stack stehen sechs native aufklappbare Abschnitte unter **Profil & Hintergrund**: Tech Stack, Karrierestationen, Ausbildung, Wissenschaftliche Arbeiten & Fachvorträge, Sprachen und Soziales Engagement. Kontakt bleibt außerhalb. Alle Abschnitte sind zunächst geschlossen; beim Öffnen wird ein zuvor geöffneter Abschnitt geschlossen. Links wie `#career`, `#tech` und `#research` öffnen automatisch den passenden Abschnitt. Tastaturbedienung per Enter/Leertaste funktioniert über native `details`/`summary` auch ohne zusätzliche Bibliothek.
+
+Die bisherigen Inhalte behalten ihre Quellen in `content/site.json`. Der einzige neue Bereich ist `site.research`, anfangs eine leere Liste. Er wird im Studio unter **Gemeinsame CV-Daten → Wissenschaftliche Arbeiten & Fachvorträge** gepflegt. Jeder Eintrag benötigt:
+
+```json
+{
+  "topic": "Titel der Arbeit oder des Vortrags",
+  "strategicQuestion": "Welche übergeordnete Frage wurde untersucht?",
+  "keyInsight": "Was war die wesentliche Schlussfolgerung?"
+}
+```
+
+Das ist nur das Schema, kein veröffentlichter Beispielinhalt. Im Studio lassen sich Einträge hinzufügen, umsortieren und entfernen. Speichern prüft alle drei Angaben; der Build prüft das Schema erneut. Bei leerer Liste wird öffentlich nur ein neutraler Hinweis angezeigt. Fehlende `research`-Felder aus älteren Inhaltsständen werden weiterhin unterstützt. Keine Migration erforderlich.
+
+Gemeinsame Vorlage: `scripts/application_v5.html`; Darstellung: `dist/application/profile-accordion.css`; Direktlink- und Akkordeonlogik: `dist/application/profile-accordion.js`; Studio: `dist/studio/index.html` und `dist/studio/studio.js`.

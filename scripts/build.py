@@ -5,6 +5,20 @@ ROOT=pathlib.Path(__file__).resolve().parents[1]
 
 SITE=json.loads((ROOT/'content/site.json').read_text(encoding='utf-8'))
 APPLICATION_V5=(ROOT/'scripts/application_v5.html').read_text(encoding='utf-8')
+
+# Scientific work uses exactly three human-readable fields; empty lists are valid.
+research=SITE.get('site',{}).get('research',[])
+if not isinstance(research,list) or len(research)>50:
+    sys.exit('Wissenschaftliche Arbeiten & Fachvorträge: research muss eine Liste mit höchstens 50 Einträgen sein.')
+for i,entry in enumerate(research):
+    if not isinstance(entry,dict):sys.exit(f'Wissenschaftlicher Eintrag {i+1}: ungültiges Format.')
+    for key,limit in [('topic',400),('strategicQuestion',3000),('keyInsight',3000)]:
+        value=entry.get(key)
+        if not isinstance(value,str) or not value.strip() or len(value)>limit:
+            sys.exit(f'Wissenschaftlicher Eintrag {i+1}: {key} fehlt oder ist zu lang.')
+if len(json.dumps(research,ensure_ascii=False,separators=(',',':')))>80000:
+    sys.exit('Wissenschaftliche Einträge: insgesamt höchstens 80.000 Zeichen.')
+
 # The legacy site JSON embeds large binary data URIs. Keep them out of every application page.
 V5_SITE={'site':SITE.get('site',{}),'pdf':''}
 if isinstance(SITE.get('pdf'),str) and SITE['pdf'].startswith('data:application/pdf;base64,'):

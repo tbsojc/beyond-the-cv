@@ -37,6 +37,7 @@ $('save').addEventListener('click',async()=>{const d=read();if(!auth){alert('Zue
 // Shared CV content is stored as JSON and embedded into every generated page.
 // Form elements are created with DOM APIs; no untrusted HTML is interpolated.
 const siteLabels={site:'Profil & Kennzahlen',name:'Name',headline:'Headline',tagline:'Beruflicher Fokus',intro:'Einleitung',metrics:'Kennzahlen',value:'Wert',label:'Beschriftung',skills:'Kompetenzkarten',title:'Titel',subtitle:'Untertitel',icon:'Icon-ID',career:'Career Journey',company:'Unternehmen',period:'Zeitraum',description:'Beschreibung',education:'Ausbildung',degree:'Abschluss',school:'Hochschule',grade:'Note',languages:'Sprachen',language:'Sprache',level:'Niveau',volunteering:'Engagement',focusTools:'Tech-Stack',worlds:'Kompetenzwelten',eyebrow:'Bereichslabel',statement:'Kernaussage',facts:'Fakten',chapters:'Kapitel',heading:'Überschrift',body:'Beschreibung',tags:'Schlagwörter'};
+Object.assign(siteLabels,{research:'Wissenschaftliche Arbeiten & Fachvorträge',topic:'Thema',strategicQuestion:'Strategische Fragestellung',keyInsight:'Kernerkenntnis'});
 const friendly=k=>siteLabels[k]||k;
 async function loadSite(){
  const status=$('siteEditorStatus');if(status)status.textContent='Lade gemeinsame CV-Daten …';
@@ -88,12 +89,27 @@ function renderTechGroups(root){
   const textarea=element('textarea','');textarea.rows=Math.max(3,Math.min(12,(group.tools||[]).length+1));textarea.value=(group.tools||[]).join('\n');textarea.oninput=()=>{group.tools=textarea.value.split(/\r?\n/).map(v=>v.trim()).filter(Boolean)};tools.append(textarea);wrap.append(tools);root.append(wrap);
  });
 }
+
+const researchFields=[['topic','Thema','Titel der wissenschaftlichen Arbeit oder des Vortrags',400],['strategicQuestion','Strategische Fragestellung','Welche übergeordnete Frage wurde untersucht?',3000],['keyInsight','Kernerkenntnis','Was war die wesentliche Schlussfolgerung?',3000]];
+function researchError(entries){if(entries===undefined)return '';if(!Array.isArray(entries)||entries.length>50)return 'Wissenschaftliche Arbeiten & Fachvorträge müssen eine Liste mit höchstens 50 Einträgen sein.';for(let i=0;i<entries.length;i++){const entry=entries[i];if(!entry||typeof entry!=='object'||Array.isArray(entry))return 'Wissenschaftlicher Eintrag '+(i+1)+': ungültiges Format.';for(const [key,label,placeholder,max] of researchFields)if(typeof entry[key]!=='string'||!entry[key].trim()||entry[key].length>max)return 'Wissenschaftlicher Eintrag '+(i+1)+': Bitte „'+label+'“ ausfüllen (maximal '+max+' Zeichen).'}if(JSON.stringify(entries).length>80000)return 'Die wissenschaftlichen Einträge sind zusammen zu lang (maximal 80.000 Zeichen).';return '';}
+function renderResearch(root){
+ if(siteData.site.research===undefined)siteData.site.research=[];const entries=siteData.site.research;
+ root.append(element('p','hint','Wissenschaftliche Arbeiten und Fachvorträge werden auf allen Bewerbungsseiten mit Thema, strategischer Fragestellung und Kernerkenntnis gezeigt. Jeder Eintrag benötigt alle drei Angaben.'));
+ if(!Array.isArray(entries)){root.append(element('p','hint','Ungültiges Datenformat: research muss eine Liste sein. Die bestehenden Daten wurden nicht verändert.'));return}
+ const add=element('button','secondary','+ Arbeit oder Fachvortrag hinzufügen');add.type='button';add.onclick=()=>{entries.push({topic:'',strategicQuestion:'',keyInsight:''});renderSite()};root.append(add);
+ if(!entries.length)root.append(element('p','hint','Noch keine Einträge. Über die Schaltfläche kannst du die erste Arbeit oder den ersten Fachvortrag anlegen.'));
+ entries.forEach((entry,index)=>{const card=element('section','site-item research-editor');const bar=element('div','row');bar.append(element('strong','','Arbeit / Fachvortrag '+(index+1)));for(const [direction,label] of [[-1,'↑'],[1,'↓']]){const move=element('button','secondary',label);move.type='button';move.title=direction<0?'Eintrag nach oben':'Eintrag nach unten';move.disabled=index+direction<0||index+direction>=entries.length;move.onclick=()=>{[entries[index],entries[index+direction]]=[entries[index+direction],entries[index]];renderSite()};bar.append(move)}const remove=element('button','secondary danger','Entfernen');remove.type='button';remove.onclick=()=>{if(confirm('Wissenschaftlichen Eintrag wirklich entfernen?')){entries.splice(index,1);renderSite()}};bar.append(remove);card.append(bar);
+ if(!entry||typeof entry!=='object'||Array.isArray(entry)){card.append(element('p','hint','Dieser Eintrag hat ein ungültiges Format. Bitte entfernen und neu anlegen.'));root.append(card);return}
+ for(const [key,label,placeholder,max] of researchFields){const field=element('label','');field.append(element('span','',label));const input=element('textarea','');input.rows=key==='topic'?2:3;input.maxLength=max;input.placeholder=placeholder;input.value=typeof entry[key]==='string'?entry[key]:'';input.dataset.researchField=key;input.dataset.researchIndex=index;input.oninput=()=>{entry[key]=input.value};field.append(input);card.append(field)}root.append(card)});
+}
+
 function section(){const k=$('siteSection').value;return k==='site'?siteData.site:siteData.site[k]}
 function sitePath(){const k=$('siteSection').value;return k==='site'?['site']:['site',k]}
 function atPath(path){return path.reduce((v,k)=>v[k],siteData)}
-function renderSite(){const root=$('siteFields');root.replaceChildren();if(!siteData){$('siteEditorStatus').textContent='Bitte zuerst GitHub verbinden und CV-Daten laden.';return;}const k=$('siteSection').value;if(k==='focusToolGroups'){renderTechGroups(root);$('siteEditorStatus').textContent='Kategorien bearbeiten und anschließend gemeinsame CV-Daten speichern.';return;}const value=section();if(value===undefined){$('siteEditorStatus').textContent='Der gewählte Bereich ist in content/site.json noch nicht vorhanden.';return;}root.append(renderField(value,sitePath(),k));$('siteEditorStatus').textContent='Änderungen in diesem Bereich werden beim Speichern für alle Bewerbungen übernommen.';}
+function renderSite(){const root=$('siteFields');root.replaceChildren();if(!siteData){$('siteEditorStatus').textContent='Bitte zuerst GitHub verbinden und CV-Daten laden.';return;}const k=$('siteSection').value;if(k==='research'){renderResearch(root);$('siteEditorStatus').textContent='Arbeiten und Fachvorträge bearbeiten und anschließend gemeinsame Daten speichern.';return;}if(k==='focusToolGroups'){renderTechGroups(root);$('siteEditorStatus').textContent='Kategorien bearbeiten und anschließend gemeinsame CV-Daten speichern.';return;}const value=section();if(value===undefined){$('siteEditorStatus').textContent='Der gewählte Bereich ist in content/site.json noch nicht vorhanden.';return;}root.append(renderField(value,sitePath(),k));$('siteEditorStatus').textContent='Änderungen in diesem Bereich werden beim Speichern für alle Bewerbungen übernommen.';}
 function element(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
 function renderField(value,path,key){
+ if(key==='research'){const root=element('div','site-array');root.append(element('h3','',friendly(key)));renderResearch(root);return root}
  if(Array.isArray(value)){
   const wrap=element('div','site-array');const head=element('div','row');head.append(element('h3','',friendly(key)+' ('+value.length+')'));
   const add=element('button','secondary','+ Eintrag hinzufügen');add.type='button';add.onclick=()=>{
@@ -119,6 +135,7 @@ $('siteSave').addEventListener('click',async()=>{
  if(!Array.isArray(siteData.site.worlds)||siteData.site.worlds.length!==4){alert('Es müssen genau vier Kompetenzwelten vorhanden sein.');return}
  if(!Array.isArray(siteData.site.skills)||siteData.site.skills.length!==4){alert('Es müssen genau vier Kompetenzkarten vorhanden sein.');return}
  if(Array.isArray(siteData.site.focusToolGroups)&&siteData.site.focusToolGroups.some(g=>!g.title?.trim()||!Array.isArray(g.tools))){alert('Jede Tech-Stack-Kategorie benötigt einen Namen und eine Programmliste.');return}
+ const scienceError=researchError(siteData.site.research);if(scienceError){alert(scienceError);return}
  if(!confirm('Gemeinsame CV-Inhalte für ALLE Seiten speichern und Netlify-Veröffentlichung starten?'))return;
  const btn=$('siteSave');btn.disabled=true;$('siteStatus').textContent='Speichere …';
  try{const body={message:'Content Studio: update shared CV content',content:encode(JSON.stringify(siteData,null,2)+'\n'),branch:auth.branch,sha:siteSha};const result=await api('contents/content/site.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});siteSha=result.content.sha;$('siteStatus').textContent='Gespeichert. GitHub Actions baut alle Bewerbungen neu.';}
