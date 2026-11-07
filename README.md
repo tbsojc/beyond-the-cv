@@ -25,3 +25,12 @@ Neben personalisierten Bewerbungen lassen sich jetzt im Content Studio unter `/s
 
 ## Prüfen
 Syntaxprüfung der Studio-JS-Datei mit `node --check dist/studio/studio.js`, Build und Asset-Prüfung. Browser- und GitHub/Netlify-End-to-End-Test stehen aus.
+
+## Wiederhergestellter Arrival
+Alle über `scripts/application_v5.html` erzeugten Bewerbungen beginnen mit dem atmosphärischen Arrival aus Journey 8.8/8.9: BS-Logo, cyanfarbenes Leuchten, Ring und „Mehr als ein Lebenslauf. Ein persönlicher Einblick.“ Der Unternehmensname kommt aus `applications/*.json`. Die bisherige Ansprache folgt unter `#personal`, der Arrival bleibt unter `#arrival` erreichbar.
+
+- Darstellung: `dist/application/arrival.css`; Scroll-Übergang und Tastaturfokus: `dist/application/arrival.js`.
+- Vorhandenes BS-Logo, kein zusätzlicher WebGL-Import, keine erzwungene Wartezeit.
+- „Persönliche Nachricht lesen“ und „Einstieg überspringen“ führen direkt zur Ansprache. Direktlinks bleiben nutzbar. Reduzierte Bewegung wird berücksichtigt.
+- Build: `python scripts/build.py`; Prüfung: `python scripts/verify_v5.py`.
+- Für GitHub sind die Dateien im Repository-Hauptverzeichnis maßgeblich. Verschachtelte Versionsordner sind vorhandene historische Kopien und werden vom Deploy-Workflow nicht verwendet.
